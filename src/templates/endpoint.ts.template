@@ -1,0 +1,6 @@
+export class {{name}} extends ApiEndpoint {
+  public name = "{{path}}";
+  public count = {{endpoint.numberOfEntities}};
+  public definition = {{endpoint.definition}};
+  public routes = {{endpoint.routes}};
+}
