@@ -1,9 +1,9 @@
 import fsx from 'fs-extra';
 import handlebars from 'handlebars';
 import path from 'path';
-import { EndpointData } from './endpoint-parser';
 import './global/string.extensions';
 import { CoreProjectData } from './models/core-project-data';
+import { EndpointData } from './models/endpoint-data';
 import { ModelData } from './models/model-data';
 
 export class CoreProject {

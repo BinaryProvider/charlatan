@@ -1,15 +1,7 @@
 import { OpenAPI } from 'openapi-types';
 import { Path } from 'path-parser';
-
-export interface EndpointData {
-  name: string;
-  path: string;
-  routes?: EndpointRoute[];
-}
-
-export interface EndpointRoute {
-  path: string;
-}
+import { Token } from 'path-parser/dist/tokeniser';
+import { EndpointData, EndpointRoute } from './models/endpoint-data';
 
 export class EndpointParser {
   public static createEndpoints(api: OpenAPI.Document): EndpointData[] {
@@ -17,7 +9,7 @@ export class EndpointParser {
 
     if (!paths) return [];
 
-    const endpoints = [];
+    const endpoints: EndpointData[] = [];
 
     Object.keys(paths ?? [])?.forEach(path => {
       const definition = paths[path];
@@ -27,32 +19,51 @@ export class EndpointParser {
       });
 
       const parsedPath = new Path(formattedPath);
-      const endpoint = this.createEndpoint(definition, parsedPath);
-      endpoints.push(endpoint);
-      console.log('---');
+
+      const tokens = parsedPath?.tokens;
+      const fragments = tokens?.filter(token => token.type === 'fragment');
+      const root = fragments[0].match;
+      const params = tokens.slice(2).filter(token => token.type !== 'delimiter');
+
+      const endpoint = endpoints.find(endpoint => {
+        return endpoint.name.toLowerCase() === root.toLowerCase();
+      }) ?? this.createEndpoint(parsedPath, endpoints);
+      
+      const routing = this.parseRouting(definition, endpoint, params);
+      endpoint.routes.push(routing);
     });
 
     return endpoints;
   }
 
-  private static createEndpoint(definition: unknown, path: Path): EndpointData {
-    const verbs = Object.keys(definition ?? []);
-    const urlParams = path.urlParams;
-    const queryParams = path.queryParams;
+  private static createEndpoint(path: Path, endpoints: EndpointData[]): EndpointData {
     const fragments = path.tokens.filter(token => token.type === 'fragment');
     const root = fragments[0].match;
-    const routes = fragments.slice(1);
-    const rootPath = `/${root}`;
-
-    console.log(verbs);
-    // Identify if this is an existing endpoint or a new one
-    // Add custom routes if existing
 
     const endpoint: EndpointData = {
       name: root.toPascalCase(),
-      path: root.toHyphenCase()
+      path: root.toHyphenCase(),
+      routes: []
     };
 
+    endpoints.push(endpoint);
+
     return endpoint;
+  }
+
+  private static parseRouting(definition: unknown, endpoint: EndpointData, params: Token[]): EndpointRoute {
+    const verbs = Object.keys(definition ?? []);
+    const routePath = `/${endpoint.path}${params.map(token => token.type === 'url-parameter' ? `/:${token.val}` : `/${token.val}`).join('/')}`;
+
+    const route: EndpointRoute = {
+      methods: verbs.map(verb => {
+        return {
+          verb: verb.toUpperCase()
+        };
+      }),
+      path: routePath,
+    };
+
+    return route;
   }
 }
