@@ -3,7 +3,7 @@ import './global/string.extensions';
 import { ModelData, ModelProperty } from './models/model-data';
 
 export class ModelParser {
-  public static createModels(api: OpenAPI.Document): ModelData[] {
+  public static parseModels(api: OpenAPI.Document): ModelData[] {
     const definitions = api['definitions'];
 
     if (!definitions) return [];
@@ -11,14 +11,14 @@ export class ModelParser {
     const models = [];
 
     Object.keys(definitions ?? [])?.forEach(definition => {
-      const model = this.createModel(definitions, definition);
+      const model = this.parseModel(definitions, definition);
       models.push(model);
     });
 
     return models;
   }
 
-  private static createModel(definitions: unknown, name: string): ModelData {
+  private static parseModel(definitions: unknown, name: string): ModelData {
     const model: ModelData = {
       name: name,
       properties: []

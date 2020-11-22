@@ -19,7 +19,4 @@
   "include": [
     "src/**/*"
   ],
-  "exclude": [
-    "src/core"
-  ]
 }

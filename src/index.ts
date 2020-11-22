@@ -4,6 +4,7 @@ import { CoreProject } from './core-project';
 import { EndpointParser } from './endpoint-parser';
 import { ModelParser } from './model-parser';
 import { CoreProjectData } from './models/core-project-data';
+import { SchemaParser } from './schema-parser';
 
 const data: CoreProjectData = {
   name: 'pet-store-api',
@@ -19,10 +20,13 @@ SwaggerParser.dereference(data.swagger, (error: Error, api: OpenAPI.Document) =>
     return;
   }
 
-  const models = ModelParser.createModels(api);
-  const endpoints = EndpointParser.createEndpoints(api);
+  const models = ModelParser.parseModels(api);
+  const endpoints = EndpointParser.parseEndpoints(api);
+  
+  SchemaParser.createDefinitions(api, endpoints);
 
   CoreProject.initialize(data);
-  CoreProject.saveModels(data, models);
-  CoreProject.saveEndpoints(data, endpoints);
+  CoreProject.createModels(data, models);
+  CoreProject.createEndpoints(data, endpoints);
+  CoreProject.createSchemas(data, endpoints);
 });

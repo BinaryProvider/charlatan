@@ -1,13 +1,15 @@
+import { ApiEndpoint } from '../api-endpoint';
+
 export class {{name}} extends ApiEndpoint {
-  public name = "{{path}}";
+  public name = '{{path}}';
   public count = {{#if numberOfEntities}}{{numberOfEntities}}{{else}}10{{/if}};
-  public definition = {{endpoint.definition}};
+  public definition = {{#if definition}}{{{definition}}}{{else}}{}{{/if}};
   public routes = {
     {{#routes}}
     ['{{path}}']: (req, res, next) => {
       {{#each methods}}
       if (req.method === '{{verb}}') {
-        res.status(200).json('IMPLEMENT CUSTOM HANDLING HERE')
+        res.status(200).json({});
       }
       {{/each}}
       next()

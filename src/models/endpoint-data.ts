@@ -5,10 +5,12 @@ export interface EndpointRoute {
 
 export interface EndpointMethod {
   verb: string;
+  response: unknown;
 }
 
 export interface EndpointData {
   name: string;
   path: string;
+  definition: string;
   routes: EndpointRoute[];
 }

@@ -1,0 +1,9 @@
+{{#each schemas}}
+import { {{name}} } from './api/{{filename}}';
+{{/each}}
+
+export const SCHEMAS = [
+  {{#each schemas}}
+  {{name}}.schema,
+  {{/each}}
+];

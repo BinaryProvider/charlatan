@@ -1,5 +1,5 @@
 node_modules
+core
 dist
 out
 temp
-.DS_Store

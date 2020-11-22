@@ -4,7 +4,7 @@ import { Token } from 'path-parser/dist/tokeniser';
 import { EndpointData, EndpointRoute } from './models/endpoint-data';
 
 export class EndpointParser {
-  public static createEndpoints(api: OpenAPI.Document): EndpointData[] {
+  public static parseEndpoints(api: OpenAPI.Document): EndpointData[] {
     const paths = api['paths'];
 
     if (!paths) return [];
@@ -27,7 +27,7 @@ export class EndpointParser {
 
       const endpoint = endpoints.find(endpoint => {
         return endpoint.name.toLowerCase() === root.toLowerCase();
-      }) ?? this.createEndpoint(parsedPath, endpoints);
+      }) ?? this.parseEndpoint(parsedPath, endpoints);
       
       const routing = this.parseRouting(definition, endpoint, params);
       endpoint.routes.push(routing);
@@ -36,13 +36,14 @@ export class EndpointParser {
     return endpoints;
   }
 
-  private static createEndpoint(path: Path, endpoints: EndpointData[]): EndpointData {
+  private static parseEndpoint(path: Path, endpoints: EndpointData[]): EndpointData {
     const fragments = path.tokens.filter(token => token.type === 'fragment');
     const root = fragments[0].match;
 
     const endpoint: EndpointData = {
       name: root.toPascalCase(),
       path: root.toHyphenCase(),
+      definition: null,
       routes: []
     };
 
@@ -57,8 +58,14 @@ export class EndpointParser {
 
     const route: EndpointRoute = {
       methods: verbs.map(verb => {
+        const responses = definition[verb]?.responses;
+        const response = responses ? responses['200'] : null;
+        const schema = response?.schema;
+        const properties = schema?.properties;
+
         return {
-          verb: verb.toUpperCase()
+          verb: verb.toUpperCase(),
+          response: properties
         };
       }),
       path: routePath,
