@@ -1,6 +1,5 @@
 import { OpenAPI } from 'openapi-types';
 import { Path } from 'path-parser';
-import { Token } from 'path-parser/dist/tokeniser';
 import { EndpointData, EndpointRoute } from './models/endpoint-data';
 
 export class EndpointParser {
@@ -22,7 +21,6 @@ export class EndpointParser {
 
       const parsedPath = new Path(formattedPath);
       const tokens = parsedPath?.tokens;
-      const fragments = tokens?.filter(token => token.type === 'fragment');
       const root = parsedPath.path.match(/[^/]+([^/]+)/)[0];
       const params = tokens.slice(2).filter(token => token.type !== 'delimiter');
 
@@ -30,10 +28,10 @@ export class EndpointParser {
         return endpoint.path.toLowerCase() === root.toLowerCase();
       }) ?? this.parseEndpoint(parsedPath, endpoints);
       
-      // this.parseRouting(definition, endpoint, params);
+      this.parseRouting(formattedPath, definition, endpoint);
     });
-
-    return [...new Set(endpoints)];
+  
+    return endpoints;
   }
 
   private static parseEndpoint(parsedPath: Path, endpoints: EndpointData[]): EndpointData {
@@ -53,17 +51,17 @@ export class EndpointParser {
     return endpoint;
   }
 
-  private static parseRouting(definition: unknown, endpoint: EndpointData, params: Token[]): void {
+  private static parseRouting(path: string, definition: unknown, endpoint: EndpointData): void {
     const verbs = Object.keys(definition ?? []);
-    const routePath = `/${endpoint.path}/${params.map(token => token.type === 'url-parameter' ? `:${token.val}` : `${token.val}`).join('/')}`;
-
-    // console.log(params.map(t => t.match).join('/'));
 
     const route: EndpointRoute = {
+      path,
       methods: verbs.map(verb => {
         const responses = definition[verb]?.responses;
         const response = responses ? responses['200'] : null;
-        const schema = response?.schema;
+        const content = response?.content;
+        const responseType = content ? content['application/json'] : null;
+        const schema = response?.schema ?? responseType?.schema;
         const properties = schema?.properties;
 
         return {
@@ -71,7 +69,6 @@ export class EndpointParser {
           response: properties
         };
       }),
-      path: routePath,
     };
 
     endpoint.routes.push(route);

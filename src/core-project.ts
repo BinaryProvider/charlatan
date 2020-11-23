@@ -12,7 +12,7 @@ export class CoreProject {
   static readonly TEMPLATE_DIR = path.join('src', 'templates');
 
   public static initialize(data: CoreProjectData): void {
-    // fsx.removeSync(data.outDir);
+    fsx.removeSync(data.outDir);
 
     try {
       fsx.mkdirSync(data.outDir);

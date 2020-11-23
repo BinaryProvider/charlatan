@@ -3,7 +3,7 @@ import { ApiEndpoint } from '../api-endpoint';
 export class {{name}} extends ApiEndpoint {
   public name = '{{path}}';
   public index = {{#if index}}{{index}}{{else}}Number.MAX_VALUE{{/if}};
-  public count = {{#if count}}{{count}}{{else}}10{{/if}};
+  public count = {{count}};
   public definition = {{#if definition}}{{{definition}}}{{else}}{}{{/if}};
   public routes = {
     {{#routes}}

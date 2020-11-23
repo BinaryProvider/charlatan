@@ -18,7 +18,6 @@ export class SchemaParser {
       if (customDefinition) {
         this.applyCustomDefinition(endpoint, customDefinition);
       } else {
-        console.log(endpoint);
         this.createDefinition(endpoint);
       }
     });
@@ -38,17 +37,23 @@ export class SchemaParser {
   }
 
   private static createDefinition(endpoint: EndpointData): void {
-    const routes = endpoint.routes.filter(route => route.methods.find(method => method.verb === 'GET' && method.response !== undefined));
+    const routes = endpoint.routes.filter(route => route.methods.find(method => method.verb.toLowerCase() === 'get' && method.response !== undefined));
 
+    console.log(endpoint);
+    
     routes.forEach(route => {
-      route.methods = route.methods.filter(method => method.verb === 'GET' && method.response !== undefined);
+      console.log(route);
+      route.methods = route.methods.filter(method => method.verb.toLowerCase() === 'get' && method.response !== undefined);
     });
 
     const response = routes[0]?.methods[0]?.response;
-    if (!response) return null;
-
     const definition = Object.assign({});
-    const properties = Object.keys(response);
+    const properties = response ? Object.keys(response) : [];
+
+    if (!response || properties.length === 0) {
+      endpoint.count = 0;
+      return null;
+    }
 
     properties.forEach(key => {
       const property = response[key];
