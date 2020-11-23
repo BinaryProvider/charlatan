@@ -15,5 +15,14 @@ String.prototype.toCamelCase = function() {
 };
 
 String.prototype.toPascalCase = function() {
-  return this.valueOf().charAt(0).toUpperCase() + this.valueOf().slice(1);
+  // return this.valueOf().charAt(0).toUpperCase() + this.valueOf().slice(1);
+  return `${this.valueOf()}`
+    .replace(new RegExp(/[-_]+/, 'g'), ' ')
+    .replace(new RegExp(/[^\w\s]/, 'g'), '')
+    .replace(
+      new RegExp(/\s+(.)(\w+)/, 'g'),
+      ($1, $2, $3) => `${$2.toUpperCase() + $3.toLowerCase()}`
+    )
+    .replace(new RegExp(/\s/, 'g'), '')
+    .replace(new RegExp(/\w/), s => s.toUpperCase());
 };

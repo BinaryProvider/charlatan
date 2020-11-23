@@ -10,11 +10,13 @@ const data: CoreProjectData = {
   name: 'pet-store-api',
   version: '1.0.0',
   outDir: 'out',
-  swagger: 'https://petstore.swagger.io/v2/swagger.json',
-  // swagger: 'https://raw.githubusercontent.com/fannheyward/Bookstore/master/pb/book.swagger.json'
+  swagger: './temp/swagger.json',
+  // swagger: 'https://petstore.swagger.io/v2/swagger.json',
+  // swagger: 'https://raw.githubusercontent.com/fannheyward/Bookstore/master/pb/book.swagger.json',
+  definitions: ['../temp/definitions.ts']
 };
 
-SwaggerParser.dereference(data.swagger, (error: Error, api: OpenAPI.Document) => {
+SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Document) => {
   if (error) {
     console.log(error);
     return;
@@ -22,8 +24,9 @@ SwaggerParser.dereference(data.swagger, (error: Error, api: OpenAPI.Document) =>
 
   const models = ModelParser.parseModels(api);
   const endpoints = EndpointParser.parseEndpoints(api);
-  
-  SchemaParser.createDefinitions(api, endpoints);
+  const customDefinitions = await SchemaParser.parseCustomDefinitions(data.definitions);
+
+  SchemaParser.createDefinitions(endpoints, customDefinitions);
 
   CoreProject.initialize(data);
   CoreProject.createModels(data, models);

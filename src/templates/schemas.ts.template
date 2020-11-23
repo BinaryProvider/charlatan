@@ -6,4 +6,4 @@ export const SCHEMAS = [
   {{#each schemas}}
   {{name}}.schema,
   {{/each}}
-];
+].sort((schemaA, schemaB) => schemaA.index - schemaB.index);

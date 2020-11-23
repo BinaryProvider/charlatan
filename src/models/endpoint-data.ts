@@ -9,8 +9,10 @@ export interface EndpointMethod {
 }
 
 export interface EndpointData {
+  index: number;
   name: string;
   path: string;
+  count: number;
   definition: string;
   routes: EndpointRoute[];
 }

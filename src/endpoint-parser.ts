@@ -14,36 +14,37 @@ export class EndpointParser {
     Object.keys(paths ?? [])?.forEach(path => {
       const definition = paths[path];
 
+      path = path.replace(/^(.*?)\/v[0-9]/, '');
+
       const formattedPath = path.replace(/{(.*)}/g, (match) => {
         return match.replace('{', ':').slice(0, match.length - 1);
       });
 
       const parsedPath = new Path(formattedPath);
-
       const tokens = parsedPath?.tokens;
       const fragments = tokens?.filter(token => token.type === 'fragment');
-      const root = fragments[0].match;
+      const root = parsedPath.path.match(/[^/]+([^/]+)/)[0];
       const params = tokens.slice(2).filter(token => token.type !== 'delimiter');
 
       const endpoint = endpoints.find(endpoint => {
-        return endpoint.name.toLowerCase() === root.toLowerCase();
+        return endpoint.path.toLowerCase() === root.toLowerCase();
       }) ?? this.parseEndpoint(parsedPath, endpoints);
       
-      const routing = this.parseRouting(definition, endpoint, params);
-      endpoint.routes.push(routing);
+      // this.parseRouting(definition, endpoint, params);
     });
 
-    return endpoints;
+    return [...new Set(endpoints)];
   }
 
-  private static parseEndpoint(path: Path, endpoints: EndpointData[]): EndpointData {
-    const fragments = path.tokens.filter(token => token.type === 'fragment');
-    const root = fragments[0].match;
+  private static parseEndpoint(parsedPath: Path, endpoints: EndpointData[]): EndpointData {
+    const root = parsedPath.path.match(/[^/]+([^/]+)/)[0];
 
     const endpoint: EndpointData = {
+      index: Number.MAX_VALUE,
       name: root.toPascalCase(),
       path: root.toHyphenCase(),
       definition: null,
+      count: 10,
       routes: []
     };
 
@@ -52,9 +53,11 @@ export class EndpointParser {
     return endpoint;
   }
 
-  private static parseRouting(definition: unknown, endpoint: EndpointData, params: Token[]): EndpointRoute {
+  private static parseRouting(definition: unknown, endpoint: EndpointData, params: Token[]): void {
     const verbs = Object.keys(definition ?? []);
-    const routePath = `/${endpoint.path}${params.map(token => token.type === 'url-parameter' ? `/:${token.val}` : `/${token.val}`).join('/')}`;
+    const routePath = `/${endpoint.path}/${params.map(token => token.type === 'url-parameter' ? `:${token.val}` : `${token.val}`).join('/')}`;
+
+    // console.log(params.map(t => t.match).join('/'));
 
     const route: EndpointRoute = {
       methods: verbs.map(verb => {
@@ -71,6 +74,6 @@ export class EndpointParser {
       path: routePath,
     };
 
-    return route;
+    endpoint.routes.push(route);
   }
 }
