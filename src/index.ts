@@ -1,14 +1,15 @@
-import SwaggerParser from '@apidevtools/swagger-parser';
+// import SwaggerParser from '@apidevtools/swagger-parser';
+// import { SchemaParser } from './schema-parser';
+import ascii from 'ascii-art';
 import fsx from 'fs-extra';
 import minimist from 'minimist';
-import { OpenAPI } from 'openapi-types';
+// import { OpenAPI } from 'openapi-types';
 import { homedir } from 'os';
 import path from 'path';
-import { CoreProject } from './core-project';
-import { EndpointParser } from './endpoint-parser';
-import { ModelParser } from './model-parser';
+// import { CoreProject } from './core-project';
+// import { EndpointParser } from './endpoint-parser';
+// import { ModelParser } from './model-parser';
 import { CoreProjectData } from './models/core-project-data';
-import { SchemaParser } from './schema-parser';
 
 const args = minimist(process.argv.slice(2));
 
@@ -34,23 +35,26 @@ if (args?.definitionDir) {
   data.definitions.push(...files);
 }
 
-SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Document) => {
-  if (error) {
-    console.log(error);
-    return;
-  }
+const test = ascii.font('test');
+console.log(test);
 
-  const options = data?.options ?? Object.assign({});
-  const models = ModelParser.parseModels(api, options);
-  const endpoints = EndpointParser.parseEndpoints(api, options);
-  const customDefinitions = await SchemaParser.parseCustomDefinitions(data.definitions);
+// SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Document) => {
+//   if (error) {
+//     console.log(error);
+//     return;
+//   }
 
-  SchemaParser.createSchemaDefinitions(endpoints, customDefinitions);
+//   const options = data?.options ?? Object.assign({});
+//   const models = ModelParser.parseModels(api, options);
+//   const endpoints = EndpointParser.parseEndpoints(api, options);
+//   const customDefinitions = await SchemaParser.parseCustomDefinitions(data.definitions);
 
-  CoreProject.initialize(data);
-  CoreProject.createModels(data, models, options);
-  CoreProject.createEndpoints(data, endpoints, options);
-  CoreProject.createSchemas(data, endpoints);
-});
+//   SchemaParser.createSchemaDefinitions(endpoints, customDefinitions);
+
+//   CoreProject.initialize(data);
+//   CoreProject.createModels(data, models, options);
+//   CoreProject.createEndpoints(data, endpoints, options);
+//   CoreProject.createSchemas(data, endpoints);
+// });
 
 console.log(`API generated at ${data.outDir}`);
