@@ -1,10 +1,10 @@
 import { OpenAPI } from 'openapi-types';
 import './global/string.extensions';
-import { CoreProjectOptions } from './models/core-project-data';
 import { ModelData, ModelProperty } from './models/model-data';
+import { ProjectOptions } from './models/project-data';
 
 export class ModelParser {
-  public static parseModels(api: OpenAPI.Document, options?: CoreProjectOptions): ModelData[] {
+  public static parseModels(api: OpenAPI.Document, options?: ProjectOptions): ModelData[] {
     const definitions = api['definitions'];
     const components = api['components'];
     const schemas = components?.schemas ?? [];
@@ -60,7 +60,7 @@ export class ModelParser {
     return map[type] ?? 'any';
   }
 
-  private static formatModels(models: ModelData[], options?: CoreProjectOptions) {
+  private static formatModels(models: ModelData[], options?: ProjectOptions) {
     if (!options) return;
 
     models.forEach(model => {
@@ -68,7 +68,7 @@ export class ModelParser {
     });
   }
 
-  private static formatModelName(model: ModelData, options: CoreProjectOptions) {
+  private static formatModelName(model: ModelData, options: ProjectOptions) {
     if (!options.model || !options.model['name']) return;
     const find = options.model['name'].find;
     const replace = options.model['name'].replace;

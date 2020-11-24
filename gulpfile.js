@@ -1,7 +1,8 @@
 /* eslint-disable */
 const gulp = require('gulp');
 const ts = require('gulp-typescript');
-const rimraf = require('gulp-rimraf'); 
+const rimraf = require('gulp-rimraf');
+const run = require('gulp-run'); 
 const tsProject = ts.createProject('tsconfig.json');
 const outDir = './dist';
 
@@ -11,8 +12,14 @@ gulp.task('clean', function() {
 });
 
 gulp.task('build', function() {
-  return tsProject.src().pipe(tsProject()).js.pipe(gulp.dest(outDir));
+  return tsProject.src()
+    .pipe(tsProject()).js
+    .pipe(gulp.dest(outDir));
 });
+
+gulp.task('version', function (cb) {
+  return run('npm run version').exec();
+})
 
 gulp.task('copy-core', function () {
   return gulp.src(['./src/core/**/*', './src/core/**/.*', './src/core/.**/*', './src/core/.**/.*']).pipe(gulp.dest(`${outDir}/core`));
@@ -22,4 +29,4 @@ gulp.task('copy-templates', function () {
   return gulp.src(['./src/templates/**/*']).pipe(gulp.dest(`${outDir}/templates`));
 });
 
-gulp.task('default', gulp.series('clean', 'build', 'copy-core', 'copy-templates'));
+gulp.task('default', gulp.series('version', 'clean', 'build', 'copy-core', 'copy-templates'));

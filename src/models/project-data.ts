@@ -1,13 +1,14 @@
-export interface CoreProjectData {
+export interface ProjectData {
   name: string,
   version: string,
   outDir: string,
   swagger: string,
   definitions?: string[],
-  options?: CoreProjectOptions,
+  definitionDir?: string,
+  options?: ProjectOptions,
 }
 
-export interface CoreProjectOptions {
+export interface ProjectOptions {
   file?: unknown;
   model?: unknown;
   endpoint?: unknown;

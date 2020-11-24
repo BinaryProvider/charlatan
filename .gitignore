@@ -3,3 +3,4 @@ dist
 out
 temp
 .DS_Store
+.charlatanrc

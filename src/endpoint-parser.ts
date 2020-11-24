@@ -1,10 +1,10 @@
 import { OpenAPI } from 'openapi-types';
 import { Path } from 'path-parser';
-import { CoreProjectOptions } from './models/core-project-data';
 import { EndpointData, EndpointRoute } from './models/endpoint-data';
+import { ProjectOptions } from './models/project-data';
 
 export class EndpointParser {
-  public static parseEndpoints(api: OpenAPI.Document, options?: CoreProjectOptions): EndpointData[] {
+  public static parseEndpoints(api: OpenAPI.Document, options?: ProjectOptions): EndpointData[] {
     const paths = api['paths'];
 
     if (!paths) return [];
@@ -74,7 +74,7 @@ export class EndpointParser {
     endpoint.routes.push(route);
   }
 
-  private static formatEndpoints(endpoints: EndpointData[], options?: CoreProjectOptions) {
+  private static formatEndpoints(endpoints: EndpointData[], options?: ProjectOptions) {
     if (!options) return;
 
     endpoints.forEach(endpoint => {
@@ -82,7 +82,7 @@ export class EndpointParser {
     });
   }
 
-  private static formatEndpointName(endpoint: EndpointData, options: CoreProjectOptions) {
+  private static formatEndpointName(endpoint: EndpointData, options: ProjectOptions) {
     if (!options.endpoint || !options.endpoint['name']) return;
     const find = options.endpoint['name'].find;
     const replace = options.endpoint['name'].replace;

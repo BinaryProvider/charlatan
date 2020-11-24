@@ -3,16 +3,16 @@ import handlebars from 'handlebars';
 import path from 'path';
 import Prettier from 'prettier';
 import './global/string.extensions';
-import { CoreProjectData, CoreProjectOptions } from './models/core-project-data';
 import { EndpointData } from './models/endpoint-data';
 import { ModelData } from './models/model-data';
+import { ProjectData, ProjectOptions } from './models/project-data';
 import { SchemasData } from './models/schema-data';
 
-export class CoreProject {
+export class Project {
   static readonly CORE_DIR = 'core';
   static readonly TEMPLATE_DIR = 'templates';
 
-  public static initialize(data: CoreProjectData): void {
+  public static initialize(data: ProjectData): void {
     // fsx.removeSync(data.outDir);
 
     try {
@@ -28,15 +28,15 @@ export class CoreProject {
     this.copyCoreFiles(data);
   }
 
-  public static createModels(data: CoreProjectData, models: ModelData[], options?: CoreProjectOptions): void {
+  public static createModels(data: ProjectData, models: ModelData[], options?: ProjectOptions): void {
     models?.forEach(model => this.createModel(model, data.outDir, options));
   }
 
-  public static createEndpoints(data: CoreProjectData, endpoints: EndpointData[], options?: CoreProjectOptions): void {
+  public static createEndpoints(data: ProjectData, endpoints: EndpointData[], options?: ProjectOptions): void {
     endpoints?.forEach(endpoint => this.createEndpoint(endpoint, data.outDir, options));
   }
 
-  public static createSchemas(data: CoreProjectData, endpoints: EndpointData[]): void {
+  public static createSchemas(data: ProjectData, endpoints: EndpointData[]): void {
     if (!endpoints) return;
     const schemaData = this.createSchemaData(endpoints);
     const sourcePath = path.join(this.TEMPLATE_DIR, 'schemas.ts.template');
@@ -48,7 +48,7 @@ export class CoreProject {
     fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
   }
 
-  private static createPackageJson(data: CoreProjectData): void {
+  private static createPackageJson(data: ProjectData): void {
     const sourcePath = path.join(this.TEMPLATE_DIR, 'package.json.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
@@ -57,7 +57,7 @@ export class CoreProject {
     fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
   }
 
-  private static createModel(model: ModelData, outDir: string, options: CoreProjectOptions): void {
+  private static createModel(model: ModelData, outDir: string, options: ProjectOptions): void {
     if (!model) return;
     const sourcePath = path.join(this.TEMPLATE_DIR, 'model.ts.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
@@ -68,7 +68,7 @@ export class CoreProject {
     fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
   }
 
-  private static createEndpoint(endpoint: EndpointData, outDir: string, options: CoreProjectOptions): void {
+  private static createEndpoint(endpoint: EndpointData, outDir: string, options: ProjectOptions): void {
     if (!endpoint) return;
     const sourcePath = path.join(this.TEMPLATE_DIR, 'endpoint.ts.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
@@ -96,11 +96,11 @@ export class CoreProject {
     return Prettier.format(input, formatOptions);
   }
 
-  private static copyCoreFiles(data: CoreProjectData): void {
+  private static copyCoreFiles(data: ProjectData): void {
     fsx.copySync(this.CORE_DIR, data.outDir);
   }
 
-  private static formatFilename(filename: string, options?: CoreProjectOptions): string {
+  private static formatFilename(filename: string, options?: ProjectOptions): string {
     if (!options.file || !options.file['name']) return filename;
     const find = options.file['name'].find;
     const replace = options.file['name'].replace;
