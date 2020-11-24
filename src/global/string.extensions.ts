@@ -7,7 +7,12 @@ interface String {
 }
 
 String.prototype.toHyphenCase = function () {
-  return this.valueOf().toCamelCase().replace(/[A-Z]/g, (match) => '-' + match.toLowerCase());
+  return this.valueOf().toCamelCase().replace(/[A-Z]+/g, (match) => {
+    const word = match.toLowerCase();
+    const part1 = word.slice(0, word.length - 1);
+    const part2 = word.slice(word.length - 1);
+    return `${part1}-${part2}`;
+  });
 };
 
 String.prototype.toCamelCase = function() {
@@ -15,7 +20,6 @@ String.prototype.toCamelCase = function() {
 };
 
 String.prototype.toPascalCase = function() {
-  // return this.valueOf().charAt(0).toUpperCase() + this.valueOf().slice(1);
   return `${this.valueOf()}`
     .replace(new RegExp(/[-_]+/, 'g'), ' ')
     .replace(new RegExp(/[^\w\s]/, 'g'), '')

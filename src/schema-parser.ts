@@ -1,33 +1,34 @@
 import stringifyObject from 'stringify-object';
 import { EndpointData } from './models/endpoint-data';
+import { SchemaDefinition } from './models/schema-definition';
 
 export class SchemaParser {
   static readonly DEFINITION_HANDLERS = {
-    ['number']: SchemaParser.randomNumber,
-    ['string']: SchemaParser.randomString,
-    ['boolean']: SchemaParser.randomBoolean,
-    ['array']: SchemaParser.arrayDefinition
+    ['number']: SchemaParser.generateNumber,
+    ['string']: SchemaParser.generateString,
+    ['boolean']: SchemaParser.generateBoolean,
+    ['array']: SchemaParser.generateArray,
   };
 
-  public static createDefinitions(endpoints: EndpointData[], customDefinitions: any[]): void {
-    this.setDefaultDefinitionIndeces(customDefinitions);
+  public static createSchemaDefinitions(endpoints: EndpointData[], customSchemaDefinitions: SchemaDefinition[]): void {
+    this.setInitialSchemaDefinitionIndexes(customSchemaDefinitions);
   
-    endpoints?.forEach(async endpoint => {
-      const customDefinition = this.parseCustomDefinition(endpoint, customDefinitions);
+    endpoints?.forEach(async (endpoint, index) => {
+      const customDefinition = this.parseCustomSchemaDefinition(endpoint, customSchemaDefinitions);
 
       if (customDefinition) {
-        this.applyCustomDefinition(endpoint, customDefinition);
+        this.applyCustomSchemaDefinition(endpoint, customDefinition);
       } else {
-        this.createDefinition(endpoint);
+        this.createSchemaDefinition(endpoint);
       }
     });
   }
 
-  public static async parseCustomDefinitions(files: string[]): Promise<unknown[]>{
+  public static async parseCustomDefinitions(files: string[]): Promise<SchemaDefinition[]>{
     return await Promise.all(files.map(file => import(file)));
   }
 
-  private static setDefaultDefinitionIndeces(customDefinitions: any[]): void {
+  private static setInitialSchemaDefinitionIndexes(customDefinitions: SchemaDefinition[]): void {
     customDefinitions.map(definitions => {
       Object.keys(definitions).forEach((key, index) => {
         const definition = definitions[key];
@@ -36,71 +37,108 @@ export class SchemaParser {
     });
   }
 
-  private static createDefinition(endpoint: EndpointData): void {
-    const routes = endpoint.routes.filter(route => route.methods.find(method => method.verb.toLowerCase() === 'get' && method.response !== undefined));
+  private static createSchemaDefinition(endpoint: EndpointData): void {
+    const routes = endpoint.routes.filter(route => route.methods.find(method => method.verb.toLowerCase() === 'get'));
 
-    console.log(endpoint);
-    
     routes.forEach(route => {
-      console.log(route);
-      route.methods = route.methods.filter(method => method.verb.toLowerCase() === 'get' && method.response !== undefined);
+      route.methods = route.methods.filter(method => method.verb.toLowerCase() === 'get');
     });
 
     const response = routes[0]?.methods[0]?.response;
-    const definition = Object.assign({});
-    const properties = response ? Object.keys(response) : [];
 
-    if (!response || properties.length === 0) {
-      endpoint.count = 0;
+    if (!response) {
       return null;
     }
+    
+    const definition = this.generateObject(response);
 
-    properties.forEach(key => {
-      const property = response[key];
-      const type = property?.type;
-      const createPropertyDefinition = SchemaParser.DEFINITION_HANDLERS[type] ?? SchemaParser.genericDefinition;
-      definition[key] = createPropertyDefinition(property);
-    });
-
-    endpoint.definition = SchemaParser.stringifyDefinition(definition);
+    endpoint.schema = {
+      name: endpoint.name,
+      index: null,
+      count: 10,
+      definition: SchemaParser.stringify(definition)
+    };
   }
 
-  private static stringifyDefinition(definition: unknown): string {
+  private static stringify(definition: unknown): string {
     return stringifyObject(definition, { indent: '    ' });
   }
 
-  private static applyCustomDefinition(endpoint: EndpointData, customDefinition: any): void {
-    endpoint.index = customDefinition.index ?? endpoint.index;
-    endpoint.count = customDefinition.count ?? endpoint.count;
-    endpoint.definition = SchemaParser.stringifyDefinition(customDefinition.definition);
+  private static applyCustomSchemaDefinition(endpoint: EndpointData, customDefinition: SchemaDefinition): void {
+    endpoint.schema = {
+      ...customDefinition,
+      index: customDefinition.index ?? null,
+      count: customDefinition.count ?? 10,
+      definition: SchemaParser.stringify(customDefinition.definition)
+    };
+
+
+    if (!endpoint.schema?.routes) return;
+
+    endpoint.schema?.routes.forEach(schema => {
+      const routes = endpoint.routes.filter(route => {
+        return route.path === schema.path;
+      });
+
+      const route = routes.length > 0 ? routes[0] : null;
+      if (!route) return;
+
+      if (schema.response) {
+        route.methods.forEach(method => {
+          const response = schema.response.find(response => response.verb && response.verb.toLowerCase() === method.verb.toLowerCase());
+          method.responseData = SchemaParser.stringify(response.data);
+        });
+      }
+
+      if (schema.handler) {
+        route.handler = SchemaParser.stringify(schema.handler);
+      }
+    });
   }
 
-  private static parseCustomDefinition(endpoint: EndpointData, customDefinitions: unknown[]): unknown {
+  private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: unknown[]): SchemaDefinition {
     const filteredDefinitions = customDefinitions.find(definition => Object.keys(definition).includes(endpoint.name));
     return filteredDefinitions ? filteredDefinitions[endpoint.name] : undefined;
   }
 
-  private static genericDefinition(property: unknown, isArrayProperty?: boolean): unknown {
-    return SchemaParser.randomString(property, isArrayProperty);
+  private static generateGeneric(property: unknown, isArrayProperty?: boolean): unknown {
+    return SchemaParser.generateString(property, isArrayProperty);
   }
 
-  private static arrayDefinition(property: unknown, num?: number) {
+  private static generateObject(object: unknown): unknown {
+    const definition = Object.assign({});
+    const properties = Object.keys(object);
+
+    if (!object || !properties) return definition;
+
+    properties.forEach(key => {
+      const property = object[key];
+      const type = property?.type;
+      const createPropertyDefinition = SchemaParser.DEFINITION_HANDLERS[type] ?? SchemaParser.generateGeneric;
+      definition[key] = createPropertyDefinition(property);
+    });
+
+    return definition;
+  }
+
+  private static generateArray(property: unknown, num?: number) {
     const items = property['items'];
     const type = items?.type;
-    const handler = SchemaParser.DEFINITION_HANDLERS[type] ?? SchemaParser.genericDefinition;
+    const handler = SchemaParser.DEFINITION_HANDLERS[type] ?? SchemaParser.generateGeneric;
+
     return [{
       ...handler(property, true),
       length: num ?? 10,      
     }];
   }
 
-  private static randomNumber(): unknown {
+  private static generateNumber(): unknown {
     return {
       chance: 'integer({"min": 1, "max": 99999})'
     };
   }
 
-  private static randomString(property: unknown, isArrayProperty?: boolean): unknown {
+  private static generateString(property: unknown, isArrayProperty?: boolean): unknown {
     return isArrayProperty ? {
       faker: 'lorem.words()'
     } : {
@@ -108,7 +146,7 @@ export class SchemaParser {
     };
   }
 
-  private static randomBoolean(): unknown {
+  private static generateBoolean(): unknown {
     return {
       chance: 'bool()'
     };

@@ -1,9 +1,10 @@
 import { OpenAPI } from 'openapi-types';
 import { Path } from 'path-parser';
+import { CoreProjectOptions } from './models/core-project-data';
 import { EndpointData, EndpointRoute } from './models/endpoint-data';
 
 export class EndpointParser {
-  public static parseEndpoints(api: OpenAPI.Document): EndpointData[] {
+  public static parseEndpoints(api: OpenAPI.Document, options?: CoreProjectOptions): EndpointData[] {
     const paths = api['paths'];
 
     if (!paths) return [];
@@ -20,9 +21,7 @@ export class EndpointParser {
       });
 
       const parsedPath = new Path(formattedPath);
-      const tokens = parsedPath?.tokens;
       const root = parsedPath.path.match(/[^/]+([^/]+)/)[0];
-      const params = tokens.slice(2).filter(token => token.type !== 'delimiter');
 
       const endpoint = endpoints.find(endpoint => {
         return endpoint.path.toLowerCase() === root.toLowerCase();
@@ -31,6 +30,8 @@ export class EndpointParser {
       this.parseRouting(formattedPath, definition, endpoint);
     });
   
+    this.formatEndpoints(endpoints, options);
+
     return endpoints;
   }
 
@@ -38,11 +39,9 @@ export class EndpointParser {
     const root = parsedPath.path.match(/[^/]+([^/]+)/)[0];
 
     const endpoint: EndpointData = {
-      index: Number.MAX_VALUE,
       name: root.toPascalCase(),
       path: root.toHyphenCase(),
-      definition: null,
-      count: 10,
+      schema: null,
       routes: []
     };
 
@@ -62,7 +61,8 @@ export class EndpointParser {
         const content = response?.content;
         const responseType = content ? content['application/json'] : null;
         const schema = response?.schema ?? responseType?.schema;
-        const properties = schema?.properties;
+        const type = schema?.type;
+        const properties = type === 'array' ? schema?.items?.properties : schema?.properties;
 
         return {
           verb: verb.toUpperCase(),
@@ -72,5 +72,21 @@ export class EndpointParser {
     };
 
     endpoint.routes.push(route);
+  }
+
+  private static formatEndpoints(endpoints: EndpointData[], options?: CoreProjectOptions) {
+    if (!options) return;
+
+    endpoints.forEach(endpoint => {
+      this.formatEndpointName(endpoint, options);
+    });
+  }
+
+  private static formatEndpointName(endpoint: EndpointData, options: CoreProjectOptions) {
+    if (!options.endpoint || !options.endpoint['name']) return;
+    const find = options.endpoint['name'].find;
+    const replace = options.endpoint['name'].replace;
+    endpoint.name = endpoint.name.replace(find, replace);
+    console.log(endpoint);
   }
 }

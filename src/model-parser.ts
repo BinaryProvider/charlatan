@@ -1,36 +1,45 @@
 import { OpenAPI } from 'openapi-types';
 import './global/string.extensions';
+import { CoreProjectOptions } from './models/core-project-data';
 import { ModelData, ModelProperty } from './models/model-data';
 
 export class ModelParser {
-  public static parseModels(api: OpenAPI.Document): ModelData[] {
+  public static parseModels(api: OpenAPI.Document, options?: CoreProjectOptions): ModelData[] {
     const definitions = api['definitions'];
+    const components = api['components'];
+    const schemas = components?.schemas ?? [];
+    const models = [...this.extractModels(schemas), ...this.extractModels(definitions)];
 
-    if (!definitions) return [];
+    this.formatModels(models, options);
 
+    return models;
+  }
+
+  private static extractModels(section: unknown): ModelData[] {
     const models = [];
 
-    Object.keys(definitions ?? [])?.forEach(definition => {
-      const model = this.parseModel(definitions, definition);
+    Object.keys(section ?? [])?.forEach(definition => {
+      const name = definition;
+      const object = section[name];
+      const model = this.parseModel(name, object);
       models.push(model);
     });
 
     return models;
   }
 
-  private static parseModel(definitions: unknown, name: string): ModelData {
+  private static parseModel(name: string, object: unknown): ModelData {
     const model: ModelData = {
       name: name,
       properties: []
     };
 
-    const definition = definitions[name];
-    const properties = Object.keys(definition.properties ?? []);
+    const properties = Object.keys(object['properties'] ?? []);
 
     properties?.forEach(propertyKey => {
       const property: ModelProperty = {
         name: propertyKey.toCamelCase(),
-        type: this.mapType(definition.properties[propertyKey].type)
+        type: this.mapType(object['properties'][propertyKey].type)
       };
 
       model.properties.push(property);
@@ -42,12 +51,27 @@ export class ModelParser {
   private static mapType(type: string): string {
     const map = {
       string: 'string',
-      boolean: 'bool',
+      boolean: 'boolean',
       integer: 'number',
       array: 'any[]',
       object: 'any',
     };
   
     return map[type] ?? 'any';
+  }
+
+  private static formatModels(models: ModelData[], options?: CoreProjectOptions) {
+    if (!options) return;
+
+    models.forEach(model => {
+      this.formatModelName(model, options);
+    });
+  }
+
+  private static formatModelName(model: ModelData, options: CoreProjectOptions) {
+    if (!options.model || !options.model['name']) return;
+    const find = options.model['name'].find;
+    const replace = options.model['name'].replace;
+    model.name = model.name.replace(find, replace);
   }
 }

@@ -1,21 +1,26 @@
 import { ApiEndpoint } from '../api-endpoint';
+import { Database as DB } from '../database';
 
 export class {{name}} extends ApiEndpoint {
   public name = '{{path}}';
-  public index = {{#if index}}{{index}}{{else}}Number.MAX_VALUE{{/if}};
-  public count = {{count}};
-  public definition = {{#if definition}}{{{definition}}}{{else}}{}{{/if}};
+  public index = {{#if schema.index}}{{schema.index}}{{else}}Number.MAX_VALUE{{/if}};
+  public count = {{#if schema.count}}{{schema.count}}{{else}}10{{/if}};
+  public definition = {{#if schema.definition}}{{{schema.definition}}}{{else}}{}{{/if}};
   public routes = {
     {{#routes}}
+    {{#if handler}}
+    ['{{path}}']: {{{handler}}},
+    {{else}}
     ['{{path}}']: (req, res, next) => {
       {{#each methods}}
       if (req.method === '{{verb}}') {
-        res.status(200).json({});
+        res.status(200).json({{#if responseData}}{{{responseData}}}{{else}}{}{{/if}});
         return;
       }
       {{/each}}
       next();
     },
+    {{/if}}
     {{/routes}}
   };
 }

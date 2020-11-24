@@ -7,23 +7,29 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon",
-    "build": "tsc",
+    "build": "tsc && npm run copy",
     "start": "node dist/index.js"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.0.2",
-    "openapi-types": "^7.0.1",
-    "path-parser": "^6.1.0",
+    "@types/prettier": "^2.1.5",
     "fs-extra": "^9.0.1",
-    "handlebars": "^4.7.6"
+    "handlebars": "^4.7.6",
+    "minimist": "^1.2.5",
+    "openapi-types": "^7.0.1",
+    "path-parser": "^6.1.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.4",
+    "@types/minimist": "^1.2.1",
     "@types/node": "^14.14.9",
-    "@typescript-eslint/eslint-plugin": "^4.8.1",
-    "@typescript-eslint/parser": "^4.8.1",
+    "@typescript-eslint/eslint-plugin": "^4.8.2",
+    "@typescript-eslint/parser": "^4.8.2",
     "eslint": "^7.14.0",
+    "gulp": "^4.0.2",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "nodemon": "^2.0.6",
+    "prettier": "^2.2.0",
     "stringify-object": "^3.3.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.2"
