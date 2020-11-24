@@ -2,9 +2,9 @@
   "watch": [
     "src"
   ],
-  "ext": "ts,json,template",
+  "ext": "ts, json, template",
   "ignore": [
     "src/**/*.spec.ts"
   ],
-  "exec": "ts-node ./src/index.ts"
+  "exec": "cd src && ts-node ./index.ts"
 }

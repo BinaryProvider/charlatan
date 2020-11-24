@@ -27,6 +27,7 @@
     "@typescript-eslint/parser": "^4.8.2",
     "eslint": "^7.14.0",
     "gulp": "^4.0.2",
+    "gulp-rimraf": "^1.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
     "nodemon": "^2.0.6",
     "prettier": "^2.2.0",

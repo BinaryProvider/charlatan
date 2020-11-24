@@ -9,8 +9,8 @@ import { ModelData } from './models/model-data';
 import { SchemasData } from './models/schema-data';
 
 export class CoreProject {
-  static readonly CORE_DIR = 'src/core';
-  static readonly TEMPLATE_DIR = path.join('src', 'templates');
+  static readonly CORE_DIR = 'core';
+  static readonly TEMPLATE_DIR = 'templates';
 
   public static initialize(data: CoreProjectData): void {
     // fsx.removeSync(data.outDir);

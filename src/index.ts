@@ -2,6 +2,7 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 import fsx from 'fs-extra';
 import minimist from 'minimist';
 import { OpenAPI } from 'openapi-types';
+import { homedir } from 'os';
 import path from 'path';
 import { CoreProject } from './core-project';
 import { EndpointParser } from './endpoint-parser';
@@ -14,21 +15,9 @@ const args = minimist(process.argv.slice(2));
 const data: CoreProjectData = {
   name: args['apiName'] ?? 'charlatan-api',
   version: args.version ?? '1.0.0',
-  outDir: args['outDir'] ?? 'out',
+  outDir: args['outDir'] ?? path.join(homedir(), 'charlatan-api'),
   swagger: args['swagger'] ?? 'https://petstore.swagger.io/v2/swagger.json',
-  // swagger: './temp/swagger.json',
-  // swagger: 'https://petstore.swagger.io/v2/swagger.json',
-  // swagger: 'https://raw.githubusercontent.com/fannheyward/Bookstore/master/pb/book.swagger.json',
-  // definitions: ['../temp/definitions.ts', '../temp/test.ts'],
   definitions: [],
-  options: {
-    model: {
-      name: {
-        find: 'DTO',
-        replace: ''
-      }
-    },
-  },
 };
 
 args?.definition?.forEach(file => {
@@ -63,3 +52,5 @@ SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Docume
   CoreProject.createEndpoints(data, endpoints, options);
   CoreProject.createSchemas(data, endpoints);
 });
+
+console.log(`API generated at ${data.outDir}`);
