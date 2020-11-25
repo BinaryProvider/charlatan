@@ -38,6 +38,7 @@ SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Docume
   Project.createModels(data, models, options);
   Project.createEndpoints(data, endpoints, options);
   Project.createSchemas(data, endpoints);
+  Project.createRC(data, options);
 
   CLI.success('------------------------------', true);
   CLI.success('API generated successfully!', true);

@@ -23,7 +23,7 @@ export class Project {
   }
 
   public static createStructure(data: ProjectData): void {
-    CLI.note('Creating project...');
+    CLI.note('Creating new project...');
 
     fsx.removeSync(data.outDir);
 
@@ -33,7 +33,7 @@ export class Project {
       fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
       fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
     } catch (error) {
-      // do nothing 
+      CLI.error(error);
     }
 
     this.createPackageJson(data);
@@ -41,7 +41,16 @@ export class Project {
   }
 
   public static updateStructure(data: ProjectData): void {
-    CLI.note('Updating project...');
+    CLI.note('Updating existing project...');
+
+    try {
+      fsx.removeSync(path.join(data.outDir, 'src', 'api'));
+      fsx.removeSync(path.join(data.outDir, 'src', 'models'));
+      fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
+      fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   public static createModels(data: ProjectData, models: ModelData[], options?: ProjectOptions): void {
@@ -50,6 +59,22 @@ export class Project {
 
   public static createEndpoints(data: ProjectData, endpoints: EndpointData[], options?: ProjectOptions): void {
     endpoints?.forEach(endpoint => this.createEndpoint(endpoint, data.outDir, options));
+  }
+
+  public static createRC(data: ProjectData, options: ProjectOptions): void {
+    if (data.mode === ProjectMode.Update) return;
+
+    const config = JSON.stringify({
+      name: data.name,
+      version: data.version,
+      swagger: data.swagger,
+      outDir: path.normalize(path.join(data.outDir, '..')),
+      options: { ...options }
+    });
+
+    const outputData = this.format(config, { parser: 'json'});
+    const outputPath = path.join(data.outDir, '.charlatanrc');
+    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
   }
 
   public static createSchemas(data: ProjectData, endpoints: EndpointData[]): void {

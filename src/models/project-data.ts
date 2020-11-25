@@ -15,7 +15,20 @@ export enum ProjectMode {
 }
 
 export interface ProjectOptions {
-  file?: unknown;
-  model?: unknown;
-  endpoint?: unknown;
+  file?: FileOptions;
+  model?: EntityOptions;
+  endpoint?: EntityOptions;
+}
+
+export interface FileOptions {
+  name?: StringOptions;
+}
+
+export interface EntityOptions {
+  name?: StringOptions;
+}
+
+export interface StringOptions {
+  find?: string;
+  replace?: string;
 }

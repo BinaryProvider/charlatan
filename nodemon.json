@@ -8,5 +8,5 @@
     "src/**/version.ts"
   ],
   "restartable": false,
-  "exec": "cd src && npm run version && ts-node ./index.ts"
+  "exec": "cd src && npm run version && ts-node ./index.ts --update"
 }

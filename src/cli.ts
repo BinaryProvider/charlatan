@@ -61,6 +61,8 @@ export class CLI {
     });
 
     table.push(
+      [this.argFormat('--create'), this.descFormat('Create a new project')],
+      [this.argFormat('--update'), this.descFormat('Update an existing project')],
       [this.argFormat('--name'), this.descFormat('API name')],
       [this.argFormat('--version'), this.descFormat('API version')],
       [this.argFormat('--outDir'), this.descFormat('Output directory')],

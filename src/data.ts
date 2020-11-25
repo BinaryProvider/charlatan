@@ -1,6 +1,5 @@
 import fsx from 'fs-extra';
 import minimist from 'minimist';
-import { homedir } from 'os';
 import path from 'path';
 import readlineSync from 'readline-sync';
 import { format } from 'string-kit';
@@ -29,7 +28,7 @@ export class Data {
     },
     ['outDir']: {
       question: 'Out dir:',
-      default: homedir()
+      default: path.dirname(require.main.filename)
     },
     ['swagger']: {
       question: 'Swagger definition:',
@@ -38,6 +37,8 @@ export class Data {
   }
 
   public static initialize(): ProjectData {
+    const mode = this.args['update'] ? ProjectMode.Update : ProjectMode.Create;
+
     let data = this.loadConfigurationFile();
     data = { ...data, ...this.args };
 
@@ -48,7 +49,7 @@ export class Data {
     this.loadDefinitions(data);
 
     data.outDir = path.join(data.outDir, data.name);
-    data.mode = this.args['update'] ? ProjectMode.Update : ProjectMode.Create;
+    data.mode = mode;
 
     if (missingProps.length > 0) {
       console.log('');
@@ -58,12 +59,12 @@ export class Data {
   }
 
   private static loadConfigurationFile(): ProjectData {
-    const files = fsx.readdirSync('../');
+    const files = fsx.readdirSync(process.env.INIT_CWD);
 
     let configFile = files.find(file => file === '.charlatanrc');
     if (!configFile) return;
 
-    configFile = fsx.readFileSync(path.join('../', configFile), { encoding: 'utf8' });
+    configFile = fsx.readFileSync(path.join(process.env.INIT_CWD, configFile), { encoding: 'utf8' });
 
     return JSON.parse(configFile);
   }
