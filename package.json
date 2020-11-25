@@ -9,6 +9,9 @@
     "registry": "https://registry.npmjs.org/",
     "access": "public"
   },
+  "bin": {
+    "charlatan": "index.js"
+  },
   "scripts": {
     "dev": "nodemon -I",
     "version": "genversion --es6 --semi src/global/version.ts",
