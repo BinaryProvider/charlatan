@@ -1,14 +1,19 @@
 {
-  "name": "charlatan",
+  "name": "@binaryprovider/charlatan",
   "version": "0.1.0",
-  "description": "",
+  "description": "Typescript mock API generator.",
   "author": "John Hellbom",
   "license": "ISC",
-  "main": "dist/index.js",
+  "main": "index.js",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "scripts": {
     "dev": "nodemon -I",
     "version": "genversion --es6 --semi src/global/version.ts",
     "build": "gulp",
+    "publish": "npm run build && cd dist && npm publish",
     "start": "node dist/index.js"
   },
   "dependencies": {

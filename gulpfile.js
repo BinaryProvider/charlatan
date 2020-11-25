@@ -29,4 +29,11 @@ gulp.task('copy-templates', function () {
   return gulp.src(['./src/templates/**/*']).pipe(gulp.dest(`${outDir}/templates`));
 });
 
-gulp.task('default', gulp.series('version', 'clean', 'build', 'copy-core', 'copy-templates'));
+gulp.task('copy-assets', function () {
+  return gulp.src([
+    './package.json',
+    './README.md'
+  ]).pipe(gulp.dest(`${outDir}`));
+});
+
+gulp.task('default', gulp.series('version', 'clean', 'build', 'copy-assets', 'copy-core', 'copy-templates'));
