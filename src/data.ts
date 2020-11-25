@@ -59,12 +59,13 @@ export class Data {
   }
 
   private static loadConfigurationFile(): ProjectData {
-    const files = fsx.readdirSync(process.env.INIT_CWD);
+    const dir = process.env.INIT_CWD ?? process.cwd();
+    const files = fsx.readdirSync(dir);
 
     let configFile = files.find(file => file === '.charlatanrc');
     if (!configFile) return;
 
-    configFile = fsx.readFileSync(path.join(process.env.INIT_CWD, configFile), { encoding: 'utf8' });
+    configFile = fsx.readFileSync(path.join(dir, configFile), { encoding: 'utf8' });
 
     return JSON.parse(configFile);
   }

@@ -1,6 +1,6 @@
 {
   "name": "@binaryprovider/charlatan",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Typescript mock API generator.",
   "author": "John Hellbom",
   "license": "ISC",
