@@ -8,5 +8,5 @@
     "src/**/version.ts"
   ],
   "restartable": false,
-  "exec": "cd src && npm run version && ts-node ./index.ts --name bebba-api --file.name.find gaga --file.name.replace coco"
+  "exec": "cd src && npm run version && ts-node ./index.ts"
 }

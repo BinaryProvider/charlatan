@@ -13,7 +13,7 @@ export class CLI {
   }
 
   public static splash(): void {
-    console.log(format(`^+^_^YCHARLATAN ^:^w^_(v${version})`));
+    console.log(format(`^+^_^YCHARLATAN (v${version})`));
     console.log('');
   }
 

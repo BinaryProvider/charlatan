@@ -1,6 +1,6 @@
 {
   "name": "@binaryprovider/charlatan",
-  "version": "0.1.0",
+  "version": "0.2.5",
   "description": "Typescript mock API generator.",
   "author": "John Hellbom",
   "license": "ISC",
@@ -16,7 +16,7 @@
     "dev": "nodemon -I",
     "version": "genversion --es6 --semi src/global/version.ts",
     "build": "gulp",
-    "publish": "npm run build && cd dist && npm publish",
+    "publish:npm": "npm run build && cd dist && npm publish",
     "start": "node dist/index.js"
   },
   "dependencies": {
@@ -28,8 +28,10 @@
     "minimist": "^1.2.5",
     "openapi-types": "^7.0.1",
     "path-parser": "^6.1.0",
+    "prettier": "^2.2.0",
     "readline-sync": "^1.4.10",
-    "string-kit": "^0.11.8"
+    "string-kit": "^0.11.8",
+    "stringify-object": "^3.3.0"
   },
   "devDependencies": {
     "@types/figlet": "^1.2.1",
@@ -38,6 +40,7 @@
     "@types/node": "^14.14.9",
     "@types/prettier": "^2.1.5",
     "@types/readline-sync": "^1.4.3",
+    "@types/stringify-object": "^3.3.0",
     "@typescript-eslint/eslint-plugin": "^4.8.2",
     "@typescript-eslint/parser": "^4.8.2",
     "eslint": "^7.14.0",
@@ -47,8 +50,6 @@
     "gulp-run": "^1.7.1",
     "gulp-typescript": "^6.0.0-alpha.1",
     "nodemon": "^2.0.6",
-    "prettier": "^2.2.0",
-    "stringify-object": "^3.3.0",
     "ts-node": "^9.0.0",
     "typescript": "^4.1.2"
   }

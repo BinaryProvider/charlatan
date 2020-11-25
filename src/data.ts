@@ -4,7 +4,7 @@ import { homedir } from 'os';
 import path from 'path';
 import readlineSync from 'readline-sync';
 import { format } from 'string-kit';
-import { ProjectData } from './models/project-data';
+import { ProjectData, ProjectMode } from './models/project-data';
 
 type RequiredOptions = {
   [name: string]: RequiredOption
@@ -48,6 +48,11 @@ export class Data {
     this.loadDefinitions(data);
 
     data.outDir = path.join(data.outDir, data.name);
+    data.mode = this.args['update'] ? ProjectMode.Update : ProjectMode.Create;
+
+    if (missingProps.length > 0) {
+      console.log('');
+    }
 
     return data;
   }

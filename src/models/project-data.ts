@@ -6,6 +6,12 @@ export interface ProjectData {
   definitions?: string[],
   definitionDir?: string,
   options?: ProjectOptions,
+  mode?: ProjectMode
+}
+
+export enum ProjectMode {
+  Create = 0,
+  Update = 1
 }
 
 export interface ProjectOptions {

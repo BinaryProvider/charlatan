@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { OpenAPI } from 'openapi-types';
 import { CLI } from './cli';
@@ -6,6 +8,7 @@ import { EndpointParser } from './endpoint-parser';
 import { ModelParser } from './model-parser';
 import { Project } from './project';
 import { SchemaParser } from './schema-parser';
+
 
 if (Data.args['help']) {
   CLI.help();
@@ -16,7 +19,7 @@ CLI.splash();
 
 const data = Data.initialize();
 
-CLI.note('Parsing Swagger definition...', true);
+CLI.note('Parsing Swagger definition...');
 
 SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Document) => {
   if (error) {
@@ -30,8 +33,6 @@ SwaggerParser.dereference(data.swagger, async (error: Error, api: OpenAPI.Docume
   const customDefinitions = await SchemaParser.parseCustomDefinitions(data.definitions ?? []);
 
   SchemaParser.createSchemaDefinitions(endpoints, customDefinitions);
-
-  CLI.note('Creating project structure...');
 
   Project.initialize(data);
   Project.createModels(data, models, options);

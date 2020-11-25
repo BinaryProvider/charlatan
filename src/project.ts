@@ -2,18 +2,30 @@ import fsx from 'fs-extra';
 import handlebars from 'handlebars';
 import path from 'path';
 import Prettier from 'prettier';
+import { CLI } from './cli';
 import './global/string.extensions';
 import { EndpointData } from './models/endpoint-data';
 import { ModelData } from './models/model-data';
-import { ProjectData, ProjectOptions } from './models/project-data';
+import { ProjectData, ProjectMode, ProjectOptions } from './models/project-data';
 import { SchemasData } from './models/schema-data';
 
 export class Project {
-  static readonly CORE_DIR = 'core';
-  static readonly TEMPLATE_DIR = 'templates';
+  static readonly CORE_DIR = './core';
+  static readonly TEMPLATE_DIR = './templates';
 
   public static initialize(data: ProjectData): void {
-    // fsx.removeSync(data.outDir);
+    if (data.mode === ProjectMode.Update) {
+      this.updateStructure(data);
+      return;
+    }
+
+    this.createStructure(data);
+  }
+
+  public static createStructure(data: ProjectData): void {
+    CLI.note('Creating project...');
+
+    fsx.removeSync(data.outDir);
 
     try {
       fsx.mkdirSync(data.outDir);
@@ -28,6 +40,10 @@ export class Project {
     this.copyCoreFiles(data);
   }
 
+  public static updateStructure(data: ProjectData): void {
+    CLI.note('Updating project...');
+  }
+
   public static createModels(data: ProjectData, models: ModelData[], options?: ProjectOptions): void {
     models?.forEach(model => this.createModel(model, data.outDir, options));
   }
@@ -38,8 +54,9 @@ export class Project {
 
   public static createSchemas(data: ProjectData, endpoints: EndpointData[]): void {
     if (!endpoints) return;
+    const root = path.dirname(require.main.filename);
     const schemaData = this.createSchemaData(endpoints);
-    const sourcePath = path.join(this.TEMPLATE_DIR, 'schemas.ts.template');
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'schemas.ts.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
     const fileName = 'schemas.ts';
@@ -49,7 +66,8 @@ export class Project {
   }
 
   private static createPackageJson(data: ProjectData): void {
-    const sourcePath = path.join(this.TEMPLATE_DIR, 'package.json.template');
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'package.json.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
     const outputData = this.format(template(data), { parser: 'json'});
@@ -59,7 +77,8 @@ export class Project {
 
   private static createModel(model: ModelData, outDir: string, options: ProjectOptions): void {
     if (!model) return;
-    const sourcePath = path.join(this.TEMPLATE_DIR, 'model.ts.template');
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'model.ts.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
     const fileName = this.formatFilename(`${model.name.toHyphenCase()}.ts`, options);
@@ -70,7 +89,8 @@ export class Project {
 
   private static createEndpoint(endpoint: EndpointData, outDir: string, options: ProjectOptions): void {
     if (!endpoint) return;
-    const sourcePath = path.join(this.TEMPLATE_DIR, 'endpoint.ts.template');
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'endpoint.ts.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
     const fileName = this.formatFilename(`${endpoint.name.toHyphenCase()}.ts`, options);
@@ -97,7 +117,9 @@ export class Project {
   }
 
   private static copyCoreFiles(data: ProjectData): void {
-    fsx.copySync(this.CORE_DIR, data.outDir);
+    const root = path.dirname(require.main.filename);
+    const copyPath = path.join(root, this.CORE_DIR);
+    fsx.copySync(copyPath, data.outDir);
   }
 
   private static formatFilename(filename: string, options?: ProjectOptions): string {
