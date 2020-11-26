@@ -14,13 +14,20 @@ export class SchemaParser {
     this.setInitialSchemaDefinitionIndexes(customSchemaDefinitions);
   
     endpoints?.forEach(async (endpoint, index) => {
-      const customDefinition = this.parseCustomSchemaDefinition(endpoint, customSchemaDefinitions);
+      const customDefinition = this.parseCustomSchemaDefinition(endpoint, customSchemaDefinitions); 
+      const defaultSchema = this.createSchemaDefinition(endpoint);
+      const customSchema = this.applyCustomSchemaDefinition(endpoint, customDefinition);
 
-      if (customDefinition) {
-        this.applyCustomSchemaDefinition(endpoint, customDefinition);
-      } else {
-        this.createSchemaDefinition(endpoint);
-      }
+      // console.log('DEFAULT:', defaultSchema);
+      // console.log('CUSTOM:', customSchema);
+
+      endpoint.schema = { ...defaultSchema, ...customSchema };
+
+      // if (customDefinition) {
+      //   this.applyCustomSchemaDefinition(endpoint, customDefinition);
+      // } else {
+      //   this.createSchemaDefinition(endpoint);
+      // }
     });
   }
 
@@ -37,7 +44,7 @@ export class SchemaParser {
     });
   }
 
-  private static createSchemaDefinition(endpoint: EndpointData): void {
+  private static createSchemaDefinition(endpoint: EndpointData): any {
     const routes = endpoint.routes.filter(route => route.methods.find(method => method.verb.toLowerCase() === 'get'));
 
     routes.forEach(route => {
@@ -52,7 +59,7 @@ export class SchemaParser {
     
     const definition = this.generateObject(response);
 
-    endpoint.schema = {
+    return {
       name: endpoint.name,
       index: null,
       count: 10,
@@ -64,40 +71,51 @@ export class SchemaParser {
     return stringifyObject(definition, { indent: '    ' });
   }
 
-  private static applyCustomSchemaDefinition(endpoint: EndpointData, customDefinition: SchemaDefinition): void {
-    endpoint.schema = {
+  private static applyCustomSchemaDefinition(endpoint: EndpointData, customDefinition: SchemaDefinition): any {
+    if (!customDefinition) return;
+
+    const schema = {
       ...customDefinition,
-      index: customDefinition.index ?? null,
-      count: customDefinition.count ?? 10,
-      definition: SchemaParser.stringify(customDefinition.definition)
     };
 
+    if (customDefinition.definition) {
+      schema.definition = SchemaParser.stringify(customDefinition.definition);
+    }
 
-    if (!endpoint.schema?.routes) return;
-
-    endpoint.schema?.routes.forEach(schema => {
-      const routes = endpoint.routes.filter(route => {
-        return route.path === schema.path;
-      });
-
-      const route = routes.length > 0 ? routes[0] : null;
-      if (!route) return;
-
-      if (schema.response) {
-        route.methods.forEach(method => {
-          const response = schema.response.find(response => response.verb && response.verb.toLowerCase() === method.verb.toLowerCase());
-          method.responseData = SchemaParser.stringify(response.data);
+    if (schema.routes) {
+      schema?.routes.forEach(schema => {
+        const routes = endpoint.routes.filter(route => {
+          return route.path === schema.path;
         });
-      }
 
-      if (schema.handler) {
-        route.handler = SchemaParser.stringify(schema.handler);
-      }
-    });
+        const route = routes.length > 0 ? routes[0] : null;
+        if (!route) return;
+
+        if (schema.response) {
+          route.methods.forEach(method => {
+            const response = schema.response.find(response => response.verb && response.verb.toLowerCase() === method.verb.toLowerCase());
+            method.responseData = SchemaParser.stringify(response.data);
+          });
+        }
+
+        if (schema.handler) {
+          route.handler = SchemaParser.stringify(schema.handler);
+        }
+      });
+    }
+
+    return schema;
   }
 
-  private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: SchemaDefinition[]): SchemaDefinition {
-    const filteredDefinitions = customDefinitions.find(definition => Object.keys(definition).includes(endpoint.name));
+  private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: unknown[]): SchemaDefinition {
+    const filteredDefinitions = customDefinitions.find(definition => {
+      return Object.keys(definition['default'] ?? []).some(property => {
+        return (
+          property.toLowerCase() === endpoint.name.toLowerCase()
+        );
+      });
+    });
+
     return filteredDefinitions ? filteredDefinitions[endpoint.name] : undefined;
   }
 

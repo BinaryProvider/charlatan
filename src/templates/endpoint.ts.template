@@ -14,11 +14,13 @@ export class {{name}} extends ApiEndpoint {
     ['{{path}}']: (req, res, next) => {
       {{#each methods}}
       if (req.method === '{{verb}}') {
-        res.status(200).json({{#if responseData}}{{{responseData}}}{{else}}{}{{/if}});
-        return;
+        {{#if responseData}}
+        res.status(200).json({{{responseData}}});
+        {{else}}
+        next();
+        {{/if}}
       }
       {{/each}}
-      next();
     },
     {{/if}}
     {{/routes}}
