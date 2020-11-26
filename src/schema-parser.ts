@@ -13,21 +13,11 @@ export class SchemaParser {
   public static createSchemaDefinitions(endpoints: EndpointData[], customSchemaDefinitions: SchemaDefinition[]): void {
     this.setInitialSchemaDefinitionIndexes(customSchemaDefinitions);
   
-    endpoints?.forEach(async (endpoint, index) => {
+    endpoints?.forEach(async endpoint => {
       const customDefinition = this.parseCustomSchemaDefinition(endpoint, customSchemaDefinitions); 
       const defaultSchema = this.createSchemaDefinition(endpoint);
       const customSchema = this.applyCustomSchemaDefinition(endpoint, customDefinition);
-
-      // console.log('DEFAULT:', defaultSchema);
-      // console.log('CUSTOM:', customSchema);
-
       endpoint.schema = { ...defaultSchema, ...customSchema };
-
-      // if (customDefinition) {
-      //   this.applyCustomSchemaDefinition(endpoint, customDefinition);
-      // } else {
-      //   this.createSchemaDefinition(endpoint);
-      // }
     });
   }
 
@@ -39,7 +29,8 @@ export class SchemaParser {
     customDefinitions.map(definitions => {
       Object.keys(definitions).forEach((key, index) => {
         const definition = definitions[key];
-        definition.index = definition.index ?? index + 1;
+        definition.index = definition.index ?? index;
+        definition.index += 1;
       });
     });
   }
@@ -108,15 +99,22 @@ export class SchemaParser {
   }
 
   private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: unknown[]): SchemaDefinition {
-    const filteredDefinitions = customDefinitions.find(definition => {
-      return Object.keys(definition['default'] ?? []).some(property => {
-        return (
-          property.toLowerCase() === endpoint.name.toLowerCase()
+    const filteredDefinitions = customDefinitions.filter(definition => {
+      return Object.keys(definition['default'] ?? [])
+        .filter(property => property !== 'index')
+        .some(property => {
+          return property.toLowerCase() === endpoint.name.toLowerCase();
+        }
         );
-      });
+    }).map(definition => {
+      return {
+        ...(definition['default'][endpoint.name] ?? definition['default'][endpoint.name.toLowerCase()]),
+      };
     });
 
-    return filteredDefinitions ? filteredDefinitions[endpoint.name] : undefined;
+    if (filteredDefinitions && filteredDefinitions.length > 0) {
+      return filteredDefinitions[0];
+    }
   }
 
   private static generateGeneric(property: unknown, isArrayProperty?: boolean): unknown {
