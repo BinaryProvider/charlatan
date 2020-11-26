@@ -96,7 +96,7 @@ export class SchemaParser {
     });
   }
 
-  private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: unknown[]): SchemaDefinition {
+  private static parseCustomSchemaDefinition(endpoint: EndpointData, customDefinitions: SchemaDefinition[]): SchemaDefinition {
     const filteredDefinitions = customDefinitions.find(definition => Object.keys(definition).includes(endpoint.name));
     return filteredDefinitions ? filteredDefinitions[endpoint.name] : undefined;
   }

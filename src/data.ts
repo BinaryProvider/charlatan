@@ -95,7 +95,10 @@ export class Data {
     if (!data.definitionDir) return;
 
     const files = fsx.readdirSync(data.definitionDir)
-      .filter(file => path.extname(file).toLowerCase() === '.ts')
+      .filter(file => {
+        const extension = path.extname(file).toLowerCase();
+        return extension === '.ts' || extension === '.js';
+      })
       .map(file => path.join(data.definitionDir, file));
 
     data.definitions = [...(data.definitions ?? []), ...files];
