@@ -69,6 +69,10 @@ export class Project {
       version: data.version,
       swagger: data.swagger,
       outDir: path.normalize(path.join(data.outDir, '..')),
+      definitions: data.definitions,
+      definitionDir: data.definitionDir,
+      extensions: data.extensions,
+      extensionDir: data.extensionDir,
       options: { ...options }
     });
 
