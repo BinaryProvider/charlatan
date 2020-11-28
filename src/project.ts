@@ -90,6 +90,38 @@ export class Project {
     fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
   }
 
+  public static async parseExtensions(files: string[]): Promise<unknown[]>{
+    return await Promise.all(files.map(file => import(file)));
+  }
+
+  public static createExtensions(data: ProjectData, extensions: unknown[]): void {
+    const inputData = {
+      extensions: {}
+    };
+
+    extensions = extensions.map(extension => extension['default']);
+
+    extensions.forEach(extension => {
+      const props = Object.keys(extension);
+      props.forEach(prop => {
+        let value = extension[prop];
+        if (typeof value === 'function') {
+          value = value + '';
+        }
+        inputData.extensions[prop] = value;
+      });
+    });
+
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'extensions.ts.template');
+    const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
+    const template = handlebars.compile(source);
+    const fileName = 'extensions.ts';
+    const outputData = this.format(template(inputData));
+    const outputPath = path.join(data.outDir, 'src', fileName);
+    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+  }
+
   private static createPackageJson(data: ProjectData): void {
     const root = path.dirname(require.main.filename);
     const sourcePath = path.join(root, this.TEMPLATE_DIR, 'package.json.template');

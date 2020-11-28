@@ -5,6 +5,8 @@ export interface ProjectData {
   swagger: string,
   definitions?: string[],
   definitionDir?: string,
+  extensions?: string[],
+  extensionDir?: string,
   options?: ProjectOptions,
   mode?: ProjectMode
 }

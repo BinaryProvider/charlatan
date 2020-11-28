@@ -1,5 +1,6 @@
 import { ApiEndpoint } from '../api-endpoint';
-import { Database as DB } from '../database';
+import { Database } from '../database';
+import { Extensions } from '../extensions';
 
 export class {{name}} extends ApiEndpoint {
   public name = '{{path}}';
