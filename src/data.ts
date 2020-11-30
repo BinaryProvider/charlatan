@@ -93,16 +93,16 @@ export class Data {
   }
 
   private static loadDefinitions(data: ProjectData): void {
-    if (!data.definitionDir) return;
+    if (!data.schemaDir) return;
 
-    const files = fsx.readdirSync(data.definitionDir)
+    const files = fsx.readdirSync(data.schemaDir)
       .filter(file => {
         const extension = path.extname(file).toLowerCase();
         return extension === '.ts' || extension === '.js';
       })
-      .map(file => path.join(data.definitionDir, file));
+      .map(file => path.join(data.schemaDir, file));
 
-    data.definitions = [...(data.definitions ?? []), ...files];
+    data.schemas = [...(data.schemas ?? []), ...files];
   }
 
   private static loadExtensions(data: ProjectData): void {

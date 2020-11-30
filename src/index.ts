@@ -32,17 +32,20 @@ if (!data) {
     const options = data?.options ?? Object.assign({});
     const models = ModelParser.parseModels(api, options);
     const endpoints = EndpointParser.parseEndpoints(api, options);
-    const customDefinitions = await SchemaParser.parseCustomDefinitions(data.definitions ?? []);
+    const customDefinitions = await SchemaParser.parseCustomDefinitions(data.schemas ?? []);
     const extensions = await Project.parseExtensions(data.extensions ?? []);
+    const staticData = await Project.parseExtensions(data.masterData ?? []);
 
     SchemaParser.createSchemaDefinitions(endpoints, customDefinitions);
   
-    Project.initialize(data);
+    await Project.initialize(data);
+
     Project.createModels(data, models, options);
     Project.createEndpoints(data, endpoints, options);
     Project.createSchemas(data, endpoints);
     Project.createRC(data, options);
     Project.createExtensions(data, extensions);
+    // Project.createStaticData(data, extensions);
 
     CLI.success('------------------------------', true);
     CLI.success('API generated successfully!', true);

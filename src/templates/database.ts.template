@@ -1,0 +1,26 @@
+import * as fs from 'fs';
+
+const MASTER_DATA = {
+{{#each data}}
+  {{@key}}: {{{this}}}
+{{/each}}
+}
+
+export class Database {
+  public static readonly FILE = 'data.json';
+
+  public static getMaster(key: string, filter?: any) {
+    const result = MASTER_DATA[key];
+    return filter ? filter(result) : result;
+  }
+
+  public static get(key: string, filter?: any): any {
+    const data = fs.readFileSync(this.FILE, {
+      encoding: 'utf-8',
+    });
+
+    const result = JSON.parse(data)[key] || [];
+
+    return filter ? filter(result) : result;
+  }
+}

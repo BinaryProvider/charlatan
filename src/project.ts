@@ -13,44 +13,56 @@ export class Project {
   static readonly CORE_DIR = './core';
   static readonly TEMPLATE_DIR = './templates';
 
-  public static initialize(data: ProjectData): void {
+  public static async initialize(data: ProjectData): Promise<void> {
     if (data.mode === ProjectMode.Update) {
-      this.updateStructure(data);
-      return;
+      return this.updateStructure(data);
     }
 
-    this.createStructure(data);
+    return this.createStructure(data);
   }
 
-  public static createStructure(data: ProjectData): void {
+  public static async createStructure(data: ProjectData): Promise<void> {
     CLI.note('Creating new project...');
 
-    fsx.removeSync(data.outDir);
+    await fsx.remove(data.outDir);
 
-    try {
-      fsx.mkdirSync(data.outDir);
-      fsx.mkdirSync(path.join(data.outDir, 'src'));
-      fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
-      fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
-    } catch (error) {
-      CLI.error(error);
-    }
+    await Promise.all([
+      fsx.mkdir(data.outDir),
+      fsx.mkdir(path.join(data.outDir, 'src')),
+      fsx.mkdir(path.join(data.outDir, 'src', 'api')),
+      fsx.mkdir(path.join(data.outDir, 'src', 'models'))
+    ]);
 
-    this.createPackageJson(data);
-    this.copyCoreFiles(data);
+    // try {
+    //   fsx.mkdirSync(data.outDir);
+    //   fsx.mkdirSync(path.join(data.outDir, 'src'));
+    //   fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
+    //   fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
+    // } catch (error) {
+    //   CLI.error(error);
+    // }
+
+    return new Promise((resolve) => {
+      this.createPackageJson(data);
+      this.copyCoreFiles(data);
+      resolve();
+    });
   }
 
-  public static updateStructure(data: ProjectData): void {
+  public static async updateStructure(data: ProjectData): Promise<void> {
     CLI.note('Updating existing project...');
 
-    try {
-      fsx.removeSync(path.join(data.outDir, 'src', 'api'));
-      fsx.removeSync(path.join(data.outDir, 'src', 'models'));
-      fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
-      fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
-    } catch (error) {
-      CLI.error(error);
-    }
+    await Promise.all([
+      fsx.remove(path.join(data.outDir, 'src', 'api')),
+      fsx.remove(path.join(data.outDir, 'src', 'models')),
+    ]);
+
+    await Promise.all([
+      fsx.mkdir(path.join(data.outDir, 'src', 'api')),
+      fsx.mkdir(path.join(data.outDir, 'src', 'models'))
+    ]);
+
+    return new Promise((resolve) => resolve());
   }
 
   public static createModels(data: ProjectData, models: ModelData[], options?: ProjectOptions): void {
@@ -69,8 +81,8 @@ export class Project {
       version: data.version,
       swagger: data.swagger,
       outDir: path.normalize(path.join(data.outDir, '..')),
-      definitions: data.definitions,
-      definitionDir: data.definitionDir,
+      definitions: data.schemas,
+      definitionDir: data.schemaDir,
       extensions: data.extensions,
       extensionDir: data.extensionDir,
       options: { ...options }
@@ -78,7 +90,12 @@ export class Project {
 
     const outputData = this.format(config, { parser: 'json'});
     const outputPath = path.join(data.outDir, '.charlatanrc');
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+  
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   public static createSchemas(data: ProjectData, endpoints: EndpointData[]): void {
@@ -91,7 +108,12 @@ export class Project {
     const fileName = 'schemas.ts';
     const outputData = this.format(template(schemaData));
     const outputPath = path.join(data.outDir, 'src', fileName);
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   public static async parseExtensions(files: string[]): Promise<unknown[]>{
@@ -123,7 +145,12 @@ export class Project {
     const fileName = 'extensions.ts';
     const outputData = this.format(template(inputData));
     const outputPath = path.join(data.outDir, 'src', fileName);
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   private static createPackageJson(data: ProjectData): void {
@@ -133,7 +160,12 @@ export class Project {
     const template = handlebars.compile(source);
     const outputData = this.format(template(data), { parser: 'json'});
     const outputPath = path.join(data.outDir, 'package.json');
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   private static createModel(model: ModelData, outDir: string, options: ProjectOptions): void {
@@ -145,7 +177,12 @@ export class Project {
     const fileName = this.formatFilename(`${model.name.toHyphenCase()}.ts`, options);
     const outputData = this.format(template(model));
     const outputPath = path.join(outDir, 'src', 'models', fileName);
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   private static createEndpoint(endpoint: EndpointData, outDir: string, options: ProjectOptions): void {
@@ -157,7 +194,12 @@ export class Project {
     const fileName = this.formatFilename(`${endpoint.name.toHyphenCase()}.ts`, options);
     const outputData = this.format(template(endpoint));
     const outputPath = path.join(outDir, 'src', 'api', fileName);
-    fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
   }
 
   private static createSchemaData(endpoints: EndpointData[]): SchemasData {
@@ -172,7 +214,7 @@ export class Project {
   }
 
   private static format(input: string, options?: Prettier.Options): string {
-    const defaultOptions = { semi: true, quotes: 'single', parser: 'typescript' };
+    const defaultOptions = { semi: true, singleQuote: true, parser: 'typescript' };
     const formatOptions = { ...defaultOptions, ...options };
     return Prettier.format(input, formatOptions);
   }
