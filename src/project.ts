@@ -1,7 +1,7 @@
 import fsx from 'fs-extra';
-import handlebars from 'handlebars';
+import * as handlebars from 'handlebars';
 import path from 'path';
-import Prettier from 'prettier';
+import * as prettier from 'prettier';
 import { CLI } from './cli';
 import './global/string.extensions';
 import { EndpointData } from './models/endpoint-data';
@@ -14,6 +14,8 @@ export class Project {
   static readonly TEMPLATE_DIR = './templates';
 
   public static async initialize(data: ProjectData): Promise<void> {
+    this.initializeHandlebars();
+
     if (data.mode === ProjectMode.Update) {
       return this.updateStructure(data);
     }
@@ -32,15 +34,6 @@ export class Project {
       fsx.mkdir(path.join(data.outDir, 'src', 'api')),
       fsx.mkdir(path.join(data.outDir, 'src', 'models'))
     ]);
-
-    // try {
-    //   fsx.mkdirSync(data.outDir);
-    //   fsx.mkdirSync(path.join(data.outDir, 'src'));
-    //   fsx.mkdirSync(path.join(data.outDir, 'src', 'api'));
-    //   fsx.mkdirSync(path.join(data.outDir, 'src', 'models'));
-    // } catch (error) {
-    //   CLI.error(error);
-    // }
 
     return new Promise((resolve) => {
       this.createPackageJson(data);
@@ -116,7 +109,7 @@ export class Project {
     }
   }
 
-  public static async parseExtensions(files: string[]): Promise<unknown[]>{
+  public static async parseFiles(files: string[]): Promise<unknown[]>{
     return await Promise.all(files.map(file => import(file)));
   }
 
@@ -151,6 +144,50 @@ export class Project {
     } catch (error) {
       CLI.error(error);
     }
+  }
+
+  public static createMasterdata(data: ProjectData, masterdata: unknown[]): void {
+    const inputData = {
+      masterdata: {}
+    };
+
+    masterdata = masterdata.map(extension => extension['default']);
+
+    masterdata.forEach(md => {
+      const props = Object.keys(md);
+      props.forEach(prop => {
+        let value = md[prop];
+        if (typeof value === 'function') {
+          value = value + '';
+        }
+        inputData.masterdata[prop] = value;
+      });
+    });
+
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'masterdata.ts.template');
+    const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
+    const template = handlebars.compile(source);
+    const fileName = 'masterdata.ts';
+    const outputData = this.format(template(inputData));
+    const outputPath = path.join(data.outDir, 'src', fileName);
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
+  }
+
+  private static initializeHandlebars(): void {
+    handlebars.registerHelper('isArray', (value) => Array.isArray(value));
+    handlebars.registerHelper('isString', (value) => typeof value === 'string');
+    handlebars.registerHelper('isFunction', (value) => value && {}.toString.call(value) === '[object Function]');
+    handlebars.registerHelper('parse', (value) => {
+      if (typeof value === 'string') return `'${value}'`;
+      if (typeof value === 'object') return `${JSON.stringify(value)}`;
+      return value;
+    });
   }
 
   private static createPackageJson(data: ProjectData): void {
@@ -213,10 +250,10 @@ export class Project {
     };
   }
 
-  private static format(input: string, options?: Prettier.Options): string {
+  private static format(input: string, options?: prettier.Options): string {
     const defaultOptions = { semi: true, singleQuote: true, parser: 'typescript' };
     const formatOptions = { ...defaultOptions, ...options };
-    return Prettier.format(input, formatOptions);
+    return prettier.format(input, formatOptions);
   }
 
   private static copyCoreFiles(data: ProjectData): void {

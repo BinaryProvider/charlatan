@@ -3,10 +3,11 @@
   "version": "{{version}}",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "nodemon",
+    "dev": "nodemon --watch ./src --ext ts,json --exec ts-node ./src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "regen": "charlatan --update"
+    "regen": "charlatan --update",
+    "regen:watch": "nodemon --watch **/*.js --exec charlatan --update"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^4.8.1",

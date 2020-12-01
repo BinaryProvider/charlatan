@@ -7,6 +7,8 @@ export interface ProjectData {
   schemaDir?: string,
   extensions?: string[],
   extensionDir?: string,
+  masterdata?: string[],
+  masterdataDir?: string,
   options?: ProjectOptions,
   mode?: ProjectMode
 }

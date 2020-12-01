@@ -71,8 +71,8 @@ export class CLI {
       [this.argFormat('--schemasDir'), this.descFormat('Directory with schema definitions')],
       [this.argFormat('--extensions'), this.descFormat('Custom schema extensions')],
       [this.argFormat('--extensionDir'), this.descFormat('Directory with schema extensions')],
-      [this.argFormat('--data'), this.descFormat('Static data input')],
-      [this.argFormat('--dataDir'), this.descFormat('Directory with static data input')],
+      [this.argFormat('--masterdata'), this.descFormat('Master data input')],
+      [this.argFormat('--masterdataDir'), this.descFormat('Directory with master data input')],
       [this.argFormat('--options'), this.descFormat('Parsing options')],
       [this.argFormat('--options.file'), this.descFormat('File options')],
       [this.argFormat('--options.file.name'), this.descFormat('Filename options')],
@@ -89,9 +89,6 @@ export class CLI {
     );
 
     console.log(table.toString());
-
-    // console.log(`--name${tab}Name of generated API.`);
-    // console.log(`--version${tab}Version for the generated API.`);
   }
 
   public static version(): void {

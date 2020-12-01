@@ -3,9 +3,6 @@ import * as fs from 'fs';
 export class Database {
   public static readonly FILE = 'data.json';
 
-  public static verify(): void {
-  }
-
   public static get(key: string, filter?: any): any {
     const data = fs.readFileSync(this.FILE, {
       encoding: 'utf-8',

@@ -48,6 +48,7 @@ export class Data {
 
     this.loadDefinitions(data);
     this.loadExtensions(data);
+    this.loadMasterdata(data);
 
     data.outDir = path.join(data.outDir, data.name);
     data.mode = mode;
@@ -116,5 +117,18 @@ export class Data {
       .map(file => path.join(data.extensionDir, file));
 
     data.extensions = [...(data.extensions ?? []), ...files];
+  }
+
+  private static loadMasterdata(data: ProjectData): void {
+    if (!data.masterdataDir) return;
+
+    const files = fsx.readdirSync(data.masterdataDir)
+      .filter(file => {
+        const extension = path.extname(file).toLowerCase();
+        return extension === '.ts' || extension === '.js';
+      })
+      .map(file => path.join(data.masterdataDir, file));
+
+    data.masterdata = [...(data.masterdata ?? []), ...files];
   }
 }

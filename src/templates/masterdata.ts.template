@@ -1,0 +1,27 @@
+import * as fs from 'fs';
+
+const MASTER_DATABASE = {
+{{#each masterdata}}
+  {{@key}}: 
+  {{#if (isArray this)}}
+    [
+      {{#each this}}
+        {{{parse this}}},
+      {{/each}}
+    ],
+  {{else}}
+    {{#if (isFunction this)}}
+      {{{this}}}
+    {{else}}
+      {{{parse this}}},
+    {{/if}}
+  {{/if}}
+{{/each}}
+}
+
+export class MasterData {
+  public static get(key: string, filter?: any) {
+    const result = MASTER_DATABASE[key];
+    return filter ? filter(result) : result;
+  }
+}

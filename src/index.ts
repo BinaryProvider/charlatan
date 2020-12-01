@@ -33,8 +33,8 @@ if (!data) {
     const models = ModelParser.parseModels(api, options);
     const endpoints = EndpointParser.parseEndpoints(api, options);
     const customDefinitions = await SchemaParser.parseCustomDefinitions(data.schemas ?? []);
-    const extensions = await Project.parseExtensions(data.extensions ?? []);
-    const staticData = await Project.parseExtensions(data.masterData ?? []);
+    const extensions = await Project.parseFiles(data.extensions ?? []);
+    const masterData = await Project.parseFiles(data.masterdata ?? []);
 
     SchemaParser.createSchemaDefinitions(endpoints, customDefinitions);
   
@@ -45,7 +45,7 @@ if (!data) {
     Project.createSchemas(data, endpoints);
     Project.createRC(data, options);
     Project.createExtensions(data, extensions);
-    // Project.createStaticData(data, extensions);
+    Project.createMasterdata(data, masterData);
 
     CLI.success('------------------------------', true);
     CLI.success('API generated successfully!', true);
