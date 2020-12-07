@@ -28,9 +28,10 @@ export class Project {
 
     await fsx.remove(data.outDir);
 
+    await fsx.mkdir(data.outDir);
+    await fsx.mkdir(path.join(data.outDir, 'src')),
+
     await Promise.all([
-      fsx.mkdir(data.outDir),
-      fsx.mkdir(path.join(data.outDir, 'src')),
       fsx.mkdir(path.join(data.outDir, 'src', 'api')),
       fsx.mkdir(path.join(data.outDir, 'src', 'models'))
     ]);
