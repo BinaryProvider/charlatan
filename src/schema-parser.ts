@@ -79,8 +79,18 @@ export class SchemaParser {
           return route.path === schema.path;
         });
 
-        const route = routes.length > 0 ? routes[0] : null;
-        if (!route) return;
+        let route = routes.length > 0 ? routes[0] : null;
+        if (!route) {
+          route = {
+            methods: [{
+              verb: 'GET',
+              response: null
+            }],
+            path: schema.path
+          };
+
+          endpoint.routes.push(route);
+        }
 
         if (schema.response) {
           route.methods.forEach(method => {

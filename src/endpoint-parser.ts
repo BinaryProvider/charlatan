@@ -14,9 +14,9 @@ export class EndpointParser {
     Object.keys(paths ?? [])?.forEach(path => {
       const definition = paths[path];
 
-      path = path.replace(/^(.*?)\/v[0-9]/, '');
+      path = path.replace(/^(.*?)\/v[0-9]/g, '');
 
-      const formattedPath = path.replace(/{(.*)}/g, (match) => {
+      const formattedPath = path.replace(/{(.*?)}/g, (match) => {
         return match.replace('{', ':').slice(0, match.length - 1);
       });
 

@@ -28,9 +28,16 @@ export class Project {
 
     await fsx.remove(data.outDir);
 
+    await this.sleep(1000);
+
     await fsx.mkdir(data.outDir);
+
+    await this.sleep(1000);
+
     await fsx.mkdir(path.join(data.outDir, 'src')),
 
+    await this.sleep(1000);
+      
     await Promise.all([
       fsx.mkdir(path.join(data.outDir, 'src', 'api')),
       fsx.mkdir(path.join(data.outDir, 'src', 'models'))
@@ -50,6 +57,8 @@ export class Project {
       fsx.remove(path.join(data.outDir, 'src', 'api')),
       fsx.remove(path.join(data.outDir, 'src', 'models')),
     ]);
+
+    await this.sleep(1000);
 
     await Promise.all([
       fsx.mkdir(path.join(data.outDir, 'src', 'api')),
@@ -233,6 +242,10 @@ export class Project {
     const outputData = this.format(template(endpoint));
     const outputPath = path.join(outDir, 'src', 'api', fileName);
 
+    if (endpoint.name === 'AppConfigurations') {
+      console.log(endpoint);
+    }
+
     try {
       fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
     } catch (error) {
@@ -268,5 +281,9 @@ export class Project {
     const find = options.file['name'].find;
     const replace = options.file['name'].replace;
     return filename.replace(find, replace);
+  }
+
+  private static async sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
