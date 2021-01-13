@@ -3,6 +3,7 @@ export interface ProjectData {
   version: string,
   outDir: string,
   swagger: string,
+  generatorVersion?: string;
   schemas?: string[],
   schemaDir?: string,
   extensions?: string[],
@@ -19,9 +20,16 @@ export enum ProjectMode {
 }
 
 export interface ProjectOptions {
+  auth?: AuthOptions;
   file?: FileOptions;
   model?: EntityOptions;
   endpoint?: EntityOptions;
+}
+
+export interface AuthOptions {
+  enabled?: boolean;
+  secret?: string;
+  rule?: string;
 }
 
 export interface FileOptions {

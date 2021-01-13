@@ -4,6 +4,7 @@ import path from 'path';
 import * as prettier from 'prettier';
 import { CLI } from './cli';
 import './global/string.extensions';
+import { version } from './global/version';
 import { EndpointData } from './models/endpoint-data';
 import { ModelData } from './models/model-data';
 import { ProjectData, ProjectMode, ProjectOptions } from './models/project-data';
@@ -43,11 +44,7 @@ export class Project {
       fsx.mkdir(path.join(data.outDir, 'src', 'models'))
     ]);
 
-    return new Promise((resolve) => {
-      this.createPackageJson(data);
-      this.copyCoreFiles(data);
-      resolve();
-    });
+    return this.createCore(data);
   }
 
   public static async updateStructure(data: ProjectData): Promise<void> {
@@ -65,7 +62,7 @@ export class Project {
       fsx.mkdir(path.join(data.outDir, 'src', 'models'))
     ]);
 
-    return new Promise((resolve) => resolve());
+    return this.createCore(data);
   }
 
   public static createModels(data: ProjectData, models: ModelData[], options?: ProjectOptions): void {
@@ -189,6 +186,15 @@ export class Project {
     }
   }
 
+  private static async createCore(data): Promise<void> {
+    return new Promise((resolve) => {
+      this.createPackageJson(data);
+      this.createOptions(data);
+      this.copyCoreFiles(data);
+      resolve();
+    });
+  }
+
   private static initializeHandlebars(): void {
     handlebars.registerHelper('isArray', (value) => Array.isArray(value));
     handlebars.registerHelper('isString', (value) => typeof value === 'string');
@@ -205,8 +211,26 @@ export class Project {
     const sourcePath = path.join(root, this.TEMPLATE_DIR, 'package.json.template');
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
     const template = handlebars.compile(source);
+
+    data.generatorVersion = version;
+
     const outputData = this.format(template(data), { parser: 'json'});
     const outputPath = path.join(data.outDir, 'package.json');
+
+    try {
+      fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
+    } catch (error) {
+      CLI.error(error);
+    }
+  }
+
+  private static createOptions(data: ProjectData): void {
+    const root = path.dirname(require.main.filename);
+    const sourcePath = path.join(root, this.TEMPLATE_DIR, 'options.ts.template');
+    const source = fsx.readFileSync(sourcePath, { encoding: 'utf8'});
+    const template = handlebars.compile(source);
+    const outputData = this.format(template(data));
+    const outputPath = path.join(data.outDir, 'src', 'options.ts');
 
     try {
       fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });
@@ -241,10 +265,6 @@ export class Project {
     const fileName = this.formatFilename(`${endpoint.name.toHyphenCase()}.ts`, options);
     const outputData = this.format(template(endpoint));
     const outputPath = path.join(outDir, 'src', 'api', fileName);
-
-    if (endpoint.name === 'AppConfigurations') {
-      console.log(endpoint);
-    }
 
     try {
       fsx.writeFileSync(outputPath, outputData, { encoding: 'utf8' });

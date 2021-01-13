@@ -13,11 +13,29 @@ export class SchemaParser {
   public static createSchemaDefinitions(endpoints: EndpointData[], customSchemaDefinitions: SchemaDefinition[]): void {
     this.setInitialSchemaDefinitionIndexes(customSchemaDefinitions);
   
+    customSchemaDefinitions.filter(definition => !endpoints.some(endpoint => {
+      const data = definition['default'];
+      const key = Object.keys(data)[0];
+      return endpoint.name.toLowerCase() === key.toLowerCase();
+    })).forEach(definition => {
+      const data = definition['default'];
+      const key = Object.keys(data)[0];
+      const schema = data[key];
+
+      endpoints.push({
+        name: key,
+        path: `${schema.name}`,
+        schema: null,
+        routes: []
+      });
+    });
+
     endpoints?.forEach(async endpoint => {
       const customDefinition = this.parseCustomSchemaDefinition(endpoint, customSchemaDefinitions); 
       const defaultSchema = this.createSchemaDefinition(endpoint);
       const customSchema = this.applyCustomSchemaDefinition(endpoint, customDefinition);
       endpoint.schema = { ...defaultSchema, ...customSchema };
+      endpoint.routes.reverse();
     });
   }
 

@@ -1,7 +1,9 @@
+import * as jwt from 'jsonwebtoken';
 import { ApiEndpoint } from '../api-endpoint';
 import { Database } from '../database';
 import { Extensions } from '../extensions';
 import { Masterdata } from '../masterdata';
+import { Options } from '../options';
 
 export class {{name}} extends ApiEndpoint {
   public name = '{{path}}';

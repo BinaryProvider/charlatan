@@ -2,8 +2,10 @@ import * as fs from 'fs';
 import {
   bodyParser, create as createServer, defaults, router as createRouter
 } from 'json-server';
+import * as jwt from 'jsonwebtoken';
 import { mocker } from 'mocker-data-generator';
 import { Database } from './database';
+import { Options } from './options';
 import { SCHEMAS } from './schemas';
 
 export type JSONServerArguments = {
@@ -21,16 +23,20 @@ export class JSONServer {
       fs.writeFileSync(Database.FILE, JSON.stringify(data, null, 1));
     })
 
+    Database.load();
+
     this.server = createServer();
 
     const router = createRouter(Database.FILE);
     const middlewares = defaults();
 
-    this.applyCustomRoutes();
-
     this.server.use(bodyParser);
     this.server.use(middlewares);
-    this.server.use(router)
+
+    this.configureAuth();
+    this.applyCustomRoutes();
+
+    this.server.use(router);
 
     this.server.listen(args.port, () => {
       console.log(`JSON Server is running on http://localhost:${args.port}`);
@@ -52,5 +58,29 @@ export class JSONServer {
         this.server.use(route, handler);
       })
     })
+  }
+
+  private configureAuth(): void {
+    if (!Options.auth.enabled) return;
+
+    const unauthorizedErrorMessage = { status: 401, message: 'Unauthorized' };
+    const rule = new RegExp(Options.auth.rule);
+
+    this.server.use(rule, (req, res, next) => {
+      if (req.headers.authorization === undefined || req.headers.authorization.split(' ')[0] !== 'Bearer') {
+        res.status(401).json(unauthorizedErrorMessage);
+        return;
+      }
+
+      const token = req.headers.authorization.split(' ')[1];
+
+      try {
+        jwt.verify(token, Options.auth.secret);
+        req.token = token;
+        next();
+      } catch (error) {
+        res.status(401).json(unauthorizedErrorMessage);
+      }
+    });
   }
 }
