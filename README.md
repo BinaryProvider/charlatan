@@ -84,6 +84,25 @@ A regex replace can be applied to endpoint and model names when generating the A
   }
 ```
 
+## Run the API
+```node
+// Run the API in dev mode with watch on .ts and .json files
+npm run dev
+
+// Compile the API for deployment
+npm run build
+
+// Run the API locally
+npm run start
+
+// Re-generate the API from the OpenAPI definition
+npm run regen
+
+// Re-generate the API with a watch on (schemas, extensions and master-data)
+npm run regen:watch
+```
+
+
 ## Schemas
 By default, charlatan will generate schemas based on the response of each endpoint. In most cases this is sufficient if you just want to spin up a quick mock API to test something. 
 
