@@ -151,7 +151,7 @@ Custom routes can be used to fully control each endpoint in the API, and how it 
 }
 ```
 
-#####Example
+##### Example
 ```js
 ...
   routes: [
@@ -226,7 +226,7 @@ exports.generateRandomValue = () => {
   return `${part1}${part2}`;
 }
 ```
-#####This extension can then be used in the schema, either directly in the definition or in a custom route.
+##### This extension can then be used in the schema, either directly in the definition or in a custom route.
 ```js
 ...
   definition: {
@@ -267,7 +267,7 @@ Master data are added to a static class called `Masterdata` and is globally acce
 /// masterdata/pets.js
 exports.Pets = ['Dog', 'Cat', 'Parrot', 'Dove']
 ```
-#####This data can then be used in the schema, either directly in the definition or in a custom route.
+##### This data can then be used in the schema, either directly in the definition or in a custom route.
 ```js
 ...
   pets: {
