@@ -6,9 +6,9 @@ Charlatan is built around [JSON server](https://github.com/typicode/json-server)
 ## Getting started
 Install with: `npm install -g @binaryprovider/charlatan`.
 
-###Examples:
+### Examples:
 
-####Generate an API using the CLI wizard:
+#### Generate an API using the CLI wizard:
 
 ```
 > charlatan
@@ -29,7 +29,7 @@ Location: C:\tmp\example-api
 ------------------------------
 ```
 
-####Generate an API using a configuration file
+#### Generate an API using a configuration file
 
 Create a file in the root of your project called `.charlatanrc`:
 ```json
