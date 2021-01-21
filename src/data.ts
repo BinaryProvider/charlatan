@@ -46,6 +46,7 @@ export class Data {
     const inputProps = this.getInputProps(data, missingProps);
     data = { ...data, ...inputProps };
 
+    this.convertPaths(data);
     this.loadDefinitions(data);
     this.loadExtensions(data);
     this.loadMasterdata(data);
@@ -60,16 +61,51 @@ export class Data {
     return data;
   }
 
-  private static loadConfigurationFile(): ProjectData {
+  private static convertPaths(data: ProjectData): void {
+    const base = path.dirname(this.getConfigurationFilePath());
+
+    if (data.outDir && !this.isAbsolute(data.outDir)) {
+      data.outDir = path.join(base, data.outDir);
+    }
+
+    if (data.extensionDir && !this.isAbsolute(data.extensionDir)) {
+      data.extensionDir = path.join(base, data.extensionDir);
+    }
+
+    if (data.schemaDir && !this.isAbsolute(data.schemaDir)) {
+      data.schemaDir = path.join(base, data.schemaDir);
+    }
+
+    if (data.masterdataDir && !this.isAbsolute(data.masterdataDir)) {
+      data.masterdataDir = path.join(base, data.masterdataDir);
+    }
+  }
+
+  private static isAbsolute(p): boolean {
+    return path.normalize(p + '/') === path.normalize(path.resolve(p) + '/');
+  }
+
+  private static getConfigurationFilePath(): string {
     const dir = process.env.INIT_CWD ?? process.cwd();
     const files = fsx.readdirSync(dir);
 
-    let configFile = files.find(file => file === '.charlatanrc');
-    if (!configFile) return;
+    const configFile = files.find(file => file === '.charlatanrc');
+    if (!configFile) return path.join(dir);
 
-    configFile = fsx.readFileSync(path.join(dir, configFile), { encoding: 'utf8' });
+    return path.join(dir, configFile);
+  }
 
-    return JSON.parse(configFile);
+  private static loadConfigurationFile(): ProjectData {
+    const path = this.getConfigurationFilePath();
+    if (!path) return;
+
+    let configFile;
+
+    try {
+      configFile = fsx.readFileSync(path, { encoding: 'utf8' });
+    } catch {}
+
+    return configFile ? JSON.parse(configFile) : null;
   }
 
   private static validate(data: ProjectData): string[] {

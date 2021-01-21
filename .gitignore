@@ -2,5 +2,6 @@ node_modules
 dist
 out
 temp
+test
 .DS_Store
 .charlatanrc
