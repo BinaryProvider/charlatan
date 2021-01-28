@@ -198,11 +198,18 @@ export class Project {
   private static initializeHandlebars(): void {
     handlebars.registerHelper('isArray', (value) => Array.isArray(value));
     handlebars.registerHelper('isString', (value) => typeof value === 'string');
+    handlebars.registerHelper('isNumber', (value) => typeof value === 'number');
     handlebars.registerHelper('isFunction', (value) => value && {}.toString.call(value) === '[object Function]');
     handlebars.registerHelper('parse', (value) => {
       if (typeof value === 'string') return `'${value}'`;
       if (typeof value === 'object') return `${JSON.stringify(value)}`;
       return value;
+    });
+    handlebars.registerHelper('gotDefinedResponse', (value) => {
+      value.methods.forEach(method => {
+        if (method.response) return true;
+      });
+      return false;
     });
   }
 

@@ -8,7 +8,7 @@ import { Options } from '../options';
 export class {{name}} extends ApiEndpoint {
   public name = '{{path}}';
   public index = {{#if schema.index}}{{schema.index}}{{else}}Number.MAX_VALUE{{/if}};
-  public count = {{#if schema.count}}{{schema.count}}{{else}}10{{/if}};
+  public count = {{#if (isNumber schema.count)}}{{schema.count}}{{else}}10{{/if}};
   public definition = {{#if schema.definition}}{{{schema.definition}}}{{else}}{}{{/if}};
   public routes = {
     {{#routes}}
@@ -16,15 +16,15 @@ export class {{name}} extends ApiEndpoint {
     ['{{path}}']: {{{handler}}},
     {{else}}
     ['{{path}}']: (req, res, next) => {
+      {{#if (gotDefinedResponse this)}}
       {{#each methods}}
       if (req.method === '{{verb}}') {
-        {{#if responseData}}
         res.status(200).json({{{responseData}}});
-        {{else}}
-        next();
-        {{/if}}
       }
       {{/each}}
+      {{else}}
+      next()
+      {{/if}}
     },
     {{/if}}
     {{/routes}}

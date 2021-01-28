@@ -11,7 +11,7 @@ export interface ProjectData {
   masterdata?: string[],
   masterdataDir?: string,
   options?: ProjectOptions,
-  mode?: ProjectMode
+  mode?: ProjectMode,
 }
 
 export enum ProjectMode {
@@ -24,6 +24,7 @@ export interface ProjectOptions {
   file?: FileOptions;
   model?: EntityOptions;
   endpoint?: EntityOptions;
+  createRouteHandlers?: boolean
 }
 
 export interface AuthOptions {
