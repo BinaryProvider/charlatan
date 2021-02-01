@@ -67,6 +67,7 @@ export class CLI {
       [this.argFormat('--version'), this.descFormat('API version')],
       [this.argFormat('--outDir'), this.descFormat('Output directory')],
       [this.argFormat('--swagger'), this.descFormat('Swagger definition (url or file)')],
+      [this.argFormat('--port'), this.descFormat('The port the API listens to')],
       [this.argFormat('--schemas'), this.descFormat('Custom schema definition')],
       [this.argFormat('--schemasDir'), this.descFormat('Directory with schema definitions')],
       [this.argFormat('--extensions'), this.descFormat('Custom schema extensions')],

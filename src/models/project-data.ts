@@ -1,17 +1,18 @@
 export interface ProjectData {
-  name: string,
-  version: string,
-  outDir: string,
-  swagger: string,
+  name: string;
+  version: string;
+  outDir: string;
+  swagger: string;
+  port: number;
   generatorVersion?: string;
-  schemas?: string[],
-  schemaDir?: string,
-  extensions?: string[],
-  extensionDir?: string,
-  masterdata?: string[],
-  masterdataDir?: string,
-  options?: ProjectOptions,
-  mode?: ProjectMode,
+  schemas?: string[];
+  schemaDir?: string;
+  extensions?: string[];
+  extensionDir?: string;
+  masterdata?: string[];
+  masterdataDir?: string;
+  options?: ProjectOptions;
+  mode?: ProjectMode;
 }
 
 export enum ProjectMode {
@@ -24,7 +25,7 @@ export interface ProjectOptions {
   file?: FileOptions;
   model?: EntityOptions;
   endpoint?: EntityOptions;
-  createRouteHandlers?: boolean
+  createRouteHandlers?: boolean;
 }
 
 export interface AuthOptions {

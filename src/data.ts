@@ -23,7 +23,7 @@ export class Data {
       default: 'charlatan-api'
     },
     ['version']: {
-      question: 'Version',
+      question: 'Version:',
       default: '1.0.0'
     },
     ['outDir']: {
@@ -34,7 +34,7 @@ export class Data {
       question: 'Swagger definition:',
       default: 'https://petstore.swagger.io/v2/swagger.json',
     }
-  }
+  };
 
   public static initialize(): ProjectData {
     const mode = this.args['update'] ? ProjectMode.Update : ProjectMode.Create;

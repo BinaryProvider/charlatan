@@ -85,6 +85,7 @@ export class Project {
       definitionDir: data.schemaDir,
       extensions: data.extensions,
       extensionDir: data.extensionDir,
+      port: data.port,
       options: { ...options }
     });
 

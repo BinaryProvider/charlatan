@@ -1,4 +1,5 @@
 import { JSONServer } from './json-server';
+import { Options } from './options';
 
 const server = new JSONServer();
-server.start({ port: 3000 });
+server.start({ port: Options.port });

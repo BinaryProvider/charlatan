@@ -1,4 +1,5 @@
 export const Options = {
+  port: {{#if port}}{{port}}{{else}}3000{{/if}},
   auth: {
     enabled: {{#if options.auth.enabled}}{{options.auth.enabled}}{{else}}false{{/if}},
     secret: '{{#if options.auth.secret}}{{options.auth.secret}}{{else}}SECRET_KEY{{/if}}',
