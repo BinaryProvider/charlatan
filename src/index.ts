@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import SwaggerParser from "@apidevtools/swagger-parser";
+import { config as configureEnvironment } from "dotenv";
 import { OpenAPI } from "openapi-types";
 import { CLI } from "./cli";
 import { Data } from "./data";
@@ -8,6 +9,8 @@ import { EndpointParser } from "./endpoint-parser";
 import { ModelParser } from "./model-parser";
 import { Project } from "./project";
 import { SchemaParser } from "./schema-parser";
+
+configureEnvironment();
 
 if (Data.args["help"]) {
   CLI.help();

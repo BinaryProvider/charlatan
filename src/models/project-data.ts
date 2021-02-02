@@ -17,7 +17,7 @@ export interface ProjectData {
 
 export enum ProjectMode {
   Create = 0,
-  Update = 1
+  Update = 1,
 }
 
 export interface ProjectOptions {
