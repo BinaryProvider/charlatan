@@ -46,7 +46,7 @@ export class Data {
     const inputProps = this.getInputProps(data, missingProps);
 
     const env = {
-      port: process.env.PORT || data.port,
+      port: +process.env.PORT || data.port,
       swagger: process.env.SWAGGER || data.swagger,
       outDir: process.env.OUTDIR || data.outDir,
       schemaDir: process.env.SCHEMADIR || data.schemaDir,
@@ -54,7 +54,7 @@ export class Data {
       masterdataDir: process.env.MASTERDATADIR || data.masterdataDir,
     };
 
-    data = { ...data, ...env, ...inputProps };
+    data = { ...data, ...inputProps, ...env };
 
     this.convertPaths(data);
     this.loadDefinitions(data);
