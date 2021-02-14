@@ -1,3 +1,5 @@
+![Build](https://github.com/BinaryProvider/charlatan/workflows/Build/badge.svg)
+
 # charlatan
 Charlatan is a Typescript API generator with the purpose of quickly auto-generating mock APIs based on OpenAPI specifications.
 
