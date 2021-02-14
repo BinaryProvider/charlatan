@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-import SwaggerParser from "@apidevtools/swagger-parser";
-import { config as configureEnvironment } from "dotenv";
-import { OpenAPI } from "openapi-types";
-import { CLI } from "./cli";
-import { Data } from "./data";
-import { EndpointParser } from "./endpoint-parser";
-import { ModelParser } from "./model-parser";
-import { Project } from "./project";
-import { SchemaParser } from "./schema-parser";
+import SwaggerParser from '@apidevtools/swagger-parser';
+import { config as configureEnvironment } from 'dotenv';
+import { OpenAPI } from 'openapi-types';
+import { CLI } from './cli';
+import { Data } from './data';
+import { EndpointParser } from './endpoint-parser';
+import { ModelParser } from './model-parser';
+import { ProjectData } from './models/project-data';
+import { Project } from './project';
+import { SchemaParser } from './schema-parser';
 
 configureEnvironment();
 
-if (Data.args["help"]) {
+if (Data.args['help']) {
   CLI.help();
   process.exit();
 }
@@ -25,7 +26,7 @@ let attempts = 0;
 const maxAttempts = 3;
 const retryDelay = 5000;
 
-const parseSwagger = (data) => {
+const parseSwagger = (data: ProjectData) => {
   SwaggerParser.dereference(
     data.swagger,
     async (error: Error, api: OpenAPI.Document) => {
@@ -55,23 +56,26 @@ const parseSwagger = (data) => {
       await Project.initialize(data);
 
       Project.createModels(data, models, options);
-      Project.createEndpoints(data, endpoints, options);
-      Project.createSchemas(data, endpoints);
-      Project.createRC(data, options);
-      Project.createExtensions(data, extensions);
-      Project.createMasterdata(data, masterData);
 
-      CLI.success("------------------------------", true);
-      CLI.success("API generated successfully!", true);
+      if (!data.models) {
+        Project.createRC(data, options);
+        Project.createEndpoints(data, endpoints, options);
+        Project.createSchemas(data, endpoints);
+        Project.createExtensions(data, extensions);
+        Project.createMasterdata(data, masterData);
+      }
+
+      CLI.success('------------------------------', true);
+      CLI.success('API generated successfully!', true);
       CLI.text(`^+Location: ^:${data.outDir}`, true);
-      CLI.success("------------------------------", true, true);
+      CLI.success('------------------------------', true, true);
     }
   );
 };
 
 if (!data) {
-  CLI.error("Could not initialize data!");
+  CLI.error('Could not initialize data!');
 } else {
-  CLI.note("Parsing Swagger definition...");
+  CLI.note('Parsing Swagger definition...');
   parseSwagger(data);
 }

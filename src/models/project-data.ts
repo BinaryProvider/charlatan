@@ -4,6 +4,7 @@ export interface ProjectData {
   outDir: string;
   swagger: string;
   port: number;
+  models?: boolean;
   generatorVersion?: string;
   schemas?: string[];
   schemaDir?: string;

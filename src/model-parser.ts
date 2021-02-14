@@ -1,5 +1,5 @@
-import { OpenAPI } from 'openapi-types';
 import './global/string.extensions';
+import { OpenAPI } from 'openapi-types';
 import { ModelData, ModelProperty } from './models/model-data';
 import { ProjectOptions } from './models/project-data';
 

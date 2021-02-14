@@ -1,15 +1,15 @@
-import * as fs from "fs";
+import * as fs from 'fs';
 import {
   bodyParser,
   create as createServer,
   defaults,
   router as createRouter,
-} from "json-server";
-import * as jwt from "jsonwebtoken";
-import { mocker } from "mocker-data-generator";
-import { Database } from "./database";
-import { Options } from "./options";
-import { SCHEMAS } from "./schemas";
+} from 'json-server';
+import * as jwt from 'jsonwebtoken';
+import { mocker } from 'mocker-data-generator';
+import { Database } from './database';
+import { Options } from './options';
+import { SCHEMAS } from './schemas';
 
 export type JSONServerArguments = {
   port: number;
@@ -68,16 +68,16 @@ export class JSONServer {
           } else {
             const verb = method.toUpperCase();
             switch (verb) {
-              case "GET":
+              case 'GET':
                 this.server.get(route, handler);
                 break;
-              case "POST":
+              case 'POST':
                 this.server.post(route, handler);
                 break;
-              case "UPDATE":
+              case 'UPDATE':
                 this.server.update(route, handler);
                 break;
-              case "DELETE":
+              case 'DELETE':
                 this.server.delete(route, handler);
                 break;
               default:
@@ -93,19 +93,19 @@ export class JSONServer {
   private configureAuth(): void {
     if (!Options.auth.enabled) return;
 
-    const unauthorizedErrorMessage = { status: 401, message: "Unauthorized" };
+    const unauthorizedErrorMessage = { status: 401, message: 'Unauthorized' };
     const rule = new RegExp(Options.auth.rule);
 
     this.server.use(rule, (req, res, next) => {
       if (
         req.headers.authorization === undefined ||
-        req.headers.authorization.split(" ")[0] !== "Bearer"
+        req.headers.authorization.split(' ')[0] !== 'Bearer'
       ) {
         res.status(401).json(unauthorizedErrorMessage);
         return;
       }
 
-      const token = req.headers.authorization.split(" ")[1];
+      const token = req.headers.authorization.split(' ')[1];
 
       try {
         jwt.verify(token, Options.auth.secret);

@@ -1,4 +1,4 @@
-import { SchemaDefinition } from "./schema-definition";
+import { SchemaDefinition } from './schema-definition';
 
 export interface EndpointRoute {
   methods: EndpointMethod[];

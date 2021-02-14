@@ -1,7 +1,7 @@
-import * as fs from "fs";
+import * as fs from 'fs';
 
 export class Database {
-  public static readonly FILE = "data.json";
+  public static readonly FILE = 'data.json';
   public static REPOSITORY: Object;
 
   private static ROUTER: any;
@@ -16,7 +16,7 @@ export class Database {
     fs.writeFileSync(
       Database.FILE,
       JSON.stringify(Database.REPOSITORY, null, 1),
-      { encoding: "utf-8" }
+      { encoding: 'utf-8' }
     );
     Database.ROUTER.db.setState(Database.REPOSITORY);
   }
@@ -25,7 +25,7 @@ export class Database {
     Database.ROUTER = router;
     Database.REPOSITORY = JSON.parse(
       fs.readFileSync(Database.FILE, {
-        encoding: "utf-8",
+        encoding: 'utf-8',
       })
     );
   }

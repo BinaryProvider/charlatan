@@ -1,9 +1,10 @@
-import fsx from "fs-extra";
-import minimist from "minimist";
-import path from "path";
-import readlineSync from "readline-sync";
-import { format } from "string-kit";
-import { ProjectData, ProjectMode } from "./models/project-data";
+import fsx from 'fs-extra';
+import minimist from 'minimist';
+import path from 'path';
+import readlineSync from 'readline-sync';
+import { format } from 'string-kit';
+import { ProjectData, ProjectMode } from './models/project-data';
+import { homedir } from 'os';
 
 type RequiredOptions = {
   [name: string]: RequiredOption;
@@ -17,27 +18,27 @@ type RequiredOption = {
 export class Data {
   public static args = minimist(process.argv.slice(2));
 
-  private static readonly REQUIRED_OPTIONS: RequiredOptions = {
-    ["name"]: {
-      question: "Name of API:",
-      default: "charlatan-api",
+  private static REQUIRED_OPTIONS: RequiredOptions = {
+    ['name']: {
+      question: 'Name of API:',
+      default: 'charlatan-api',
     },
-    ["version"]: {
-      question: "Version:",
-      default: "1.0.0",
+    ['version']: {
+      question: 'Version:',
+      default: '1.0.0',
     },
-    ["outDir"]: {
-      question: "Out dir:",
-      default: path.dirname(require.main.filename),
+    ['outDir']: {
+      question: 'Out dir:',
+      default: homedir(),
     },
-    ["swagger"]: {
-      question: "Swagger definition:",
-      default: "https://petstore.swagger.io/v2/swagger.json",
+    ['swagger']: {
+      question: 'Swagger definition:',
+      default: 'https://petstore.swagger.io/v2/swagger.json',
     },
   };
 
   public static initialize(): ProjectData {
-    const mode = this.args["update"] ? ProjectMode.Update : ProjectMode.Create;
+    const mode = this.args['update'] ? ProjectMode.Update : ProjectMode.Create;
 
     let data = this.loadConfigurationFile();
     data = { ...data, ...this.args };
@@ -51,7 +52,7 @@ export class Data {
       outDir: process.env.OUTDIR || data.outDir,
       schemaDir: process.env.SCHEMADIR || data.schemaDir,
       extensionDir: process.env.EXTENSIONDIR || data.extensionDir,
-      masterdataDir: process.env.MASTERDATADIR || data.masterdataDir,
+      masterdataDir: process.env.MASTERDATADIR || data.masterdataDir
     };
 
     data = { ...data, ...inputProps, ...env };
@@ -65,7 +66,7 @@ export class Data {
     data.mode = mode;
 
     if (missingProps.length > 0) {
-      console.log("");
+      console.log('');
     }
 
     return data;
@@ -83,13 +84,13 @@ export class Data {
     }
 
     if (data.schemaDir) {
-      const dirs = data.schemaDir.split(" ");
-      let result = "";
+      const dirs = data.schemaDir.split(' ');
+      let result = '';
       dirs.forEach((dir) => {
         if (!this.isAbsolute(dir)) {
           dir = path.join(base, dir);
         }
-        result += dir + " ";
+        result += dir + ' ';
       });
 
       data.schemaDir = result.trimEnd();
@@ -101,15 +102,15 @@ export class Data {
   }
 
   private static isAbsolute(p): boolean {
-    return path.normalize(p + "/") === path.normalize(path.resolve(p) + "/");
+    return path.normalize(p + '/') === path.normalize(path.resolve(p) + '/');
   }
 
   private static getConfigurationFilePath(): string {
     const dir = process.env.INIT_CWD ?? process.cwd();
     const files = fsx.readdirSync(dir);
 
-    const configFile = files.find((file) => file === ".charlatanrc");
-    if (!configFile) return path.join(dir);
+    const configFile = files.find((file) => file === '.charlatanrc');
+    if (!configFile) return homedir();
 
     return path.join(dir, configFile);
   }
@@ -121,13 +122,24 @@ export class Data {
     let configFile;
 
     try {
-      configFile = fsx.readFileSync(path, { encoding: "utf8" });
-    } catch {}
+      configFile = fsx.readFileSync(path, { encoding: 'utf8' });
+    } catch(error) {
+      console.log(error.message);
+    }
 
     return configFile ? JSON.parse(configFile) : null;
   }
 
   private static validate(data: ProjectData): string[] {
+
+    if (this.args.models) {
+      this.REQUIRED_OPTIONS = Object.assign({}, {
+        ['name']: this.REQUIRED_OPTIONS['name'],
+        ['swagger']: this.REQUIRED_OPTIONS['swagger'],
+        ['outDir']: this.REQUIRED_OPTIONS['outDir']
+      });
+    }
+
     const existingProps = Object.keys(data);
     const requiredProps = Object.keys(this.REQUIRED_OPTIONS);
     const missingProps = requiredProps.filter(
@@ -156,7 +168,7 @@ export class Data {
   private static loadDefinitions(data: ProjectData): void {
     if (!data.schemaDir) return;
 
-    const dirs = data.schemaDir.split(" ");
+    const dirs = data.schemaDir.split(' ');
     const files = [];
 
     dirs.forEach((dir) => {
@@ -164,7 +176,7 @@ export class Data {
         .readdirSync(dir)
         .filter((file) => {
           const extension = path.extname(file).toLowerCase();
-          return extension === ".ts" || extension === ".js";
+          return extension === '.ts' || extension === '.js';
         })
         .map((file) => path.join(dir, file));
       files.push(...dirFiles);
@@ -180,7 +192,7 @@ export class Data {
       .readdirSync(data.extensionDir)
       .filter((file) => {
         const extension = path.extname(file).toLowerCase();
-        return extension === ".ts" || extension === ".js";
+        return extension === '.ts' || extension === '.js';
       })
       .map((file) => path.join(data.extensionDir, file));
 
@@ -194,7 +206,7 @@ export class Data {
       .readdirSync(data.masterdataDir)
       .filter((file) => {
         const extension = path.extname(file).toLowerCase();
-        return extension === ".ts" || extension === ".js";
+        return extension === '.ts' || extension === '.js';
       })
       .map((file) => path.join(data.masterdataDir, file));
 

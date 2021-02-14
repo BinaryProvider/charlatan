@@ -1,14 +1,14 @@
-import { OpenAPI } from "openapi-types";
-import { Path } from "path-parser";
-import { EndpointData, EndpointRoute } from "./models/endpoint-data";
-import { ProjectOptions } from "./models/project-data";
+import { OpenAPI } from 'openapi-types';
+import { Path } from 'path-parser';
+import { EndpointData, EndpointRoute } from './models/endpoint-data';
+import { ProjectOptions } from './models/project-data';
 
 export class EndpointParser {
   public static parseEndpoints(
     api: OpenAPI.Document,
     options?: ProjectOptions
   ): EndpointData[] {
-    const paths = api["paths"];
+    const paths = api['paths'];
 
     if (!paths) return [];
 
@@ -17,10 +17,10 @@ export class EndpointParser {
     Object.keys(paths ?? [])?.forEach((path) => {
       const definition = paths[path];
 
-      path = path.replace(/^(.*?)\/v[0-9]/g, "");
+      path = path.replace(/^(.*?)\/v[0-9]/g, '');
 
       const formattedPath = path.replace(/{(.*?)}/g, (match) => {
-        return match.replace("{", ":").slice(0, match.length - 1);
+        return match.replace('{', ':').slice(0, match.length - 1);
       });
 
       const parsedPath = new Path(formattedPath);
@@ -68,13 +68,13 @@ export class EndpointParser {
       path,
       methods: verbs.map((verb) => {
         const responses = definition[verb]?.responses;
-        const response = responses ? responses["200"] : null;
+        const response = responses ? responses['200'] : null;
         const content = response?.content;
-        const responseType = content ? content["application/json"] : null;
+        const responseType = content ? content['application/json'] : null;
         const schema = response?.schema ?? responseType?.schema;
         const type = schema?.type;
         const properties =
-          type === "array" ? schema?.items?.properties : schema?.properties;
+          type === 'array' ? schema?.items?.properties : schema?.properties;
 
         return {
           verb: verb.toUpperCase(),
@@ -101,9 +101,9 @@ export class EndpointParser {
     endpoint: EndpointData,
     options: ProjectOptions
   ) {
-    if (!options.endpoint || !options.endpoint["name"]) return;
-    const find = options.endpoint["name"].find;
-    const replace = options.endpoint["name"].replace;
+    if (!options.endpoint || !options.endpoint['name']) return;
+    const find = options.endpoint['name'].find;
+    const replace = options.endpoint['name'].replace;
     endpoint.name = endpoint.name.replace(find, replace);
     console.log(endpoint);
   }

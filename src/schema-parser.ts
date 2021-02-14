@@ -1,13 +1,13 @@
-import stringifyObject from "stringify-object";
-import { EndpointData } from "./models/endpoint-data";
-import { SchemaDefinition } from "./models/schema-definition";
+import stringifyObject from 'stringify-object';
+import { EndpointData } from './models/endpoint-data';
+import { SchemaDefinition } from './models/schema-definition';
 
 export class SchemaParser {
   static readonly DEFINITION_HANDLERS = {
-    ["number"]: SchemaParser.generateNumber,
-    ["string"]: SchemaParser.generateString,
-    ["boolean"]: SchemaParser.generateBoolean,
-    ["array"]: SchemaParser.generateArray,
+    ['number']: SchemaParser.generateNumber,
+    ['string']: SchemaParser.generateString,
+    ['boolean']: SchemaParser.generateBoolean,
+    ['array']: SchemaParser.generateArray,
   };
 
   public static createSchemaDefinitions(
@@ -20,13 +20,13 @@ export class SchemaParser {
       .filter(
         (definition) =>
           !endpoints.some((endpoint) => {
-            const data = definition["default"];
+            const data = definition['default'];
             const key = Object.keys(data)[0];
             return endpoint.name.toLowerCase() === key.toLowerCase();
           })
       )
       .forEach((definition) => {
-        const data = definition["default"];
+        const data = definition['default'];
         const key = Object.keys(data)[0];
         const schema = data[key];
 
@@ -73,12 +73,12 @@ export class SchemaParser {
 
   private static createSchemaDefinition(endpoint: EndpointData): any {
     const routes = endpoint.routes.filter((route) =>
-      route.methods.find((method) => method.verb.toLowerCase() === "get")
+      route.methods.find((method) => method.verb.toLowerCase() === 'get')
     );
 
     routes.forEach((route) => {
       route.methods = route.methods.filter(
-        (method) => method.verb.toLowerCase() === "get"
+        (method) => method.verb.toLowerCase() === 'get'
       );
     });
 
@@ -99,7 +99,7 @@ export class SchemaParser {
   }
 
   private static stringify(definition: unknown): string {
-    return stringifyObject(definition, { indent: "    " });
+    return stringifyObject(definition, { indent: '    ' });
   }
 
   private static applyCustomSchemaDefinition(
@@ -127,7 +127,7 @@ export class SchemaParser {
           route = {
             methods: [
               {
-                verb: "GET",
+                verb: 'GET',
                 response: null,
               },
             ],
@@ -167,16 +167,16 @@ export class SchemaParser {
   ): SchemaDefinition {
     const filteredDefinitions = customDefinitions
       .filter((definition) => {
-        return Object.keys(definition["default"] ?? [])
-          .filter((property) => property !== "index")
+        return Object.keys(definition['default'] ?? [])
+          .filter((property) => property !== 'index')
           .some((property) => {
             return property.toLowerCase() === endpoint.name.toLowerCase();
           });
       })
       .map((definition) => {
         return {
-          ...(definition["default"][endpoint.name] ??
-            definition["default"][endpoint.name.toLowerCase()]),
+          ...(definition['default'][endpoint.name] ??
+            definition['default'][endpoint.name.toLowerCase()]),
         };
       });
 
@@ -210,7 +210,7 @@ export class SchemaParser {
   }
 
   private static generateArray(property: unknown, num?: number) {
-    const items = property["items"];
+    const items = property['items'];
     const type = items?.type;
     const handler =
       SchemaParser.DEFINITION_HANDLERS[type] ?? SchemaParser.generateGeneric;
@@ -235,16 +235,16 @@ export class SchemaParser {
   ): unknown {
     return isArrayProperty
       ? {
-          faker: "lorem.words()",
+          faker: 'lorem.words()',
         }
       : {
-          eval: "faker.lorem.words()",
+          eval: 'faker.lorem.words()',
         };
   }
 
   private static generateBoolean(): unknown {
     return {
-      chance: "bool()",
+      chance: 'bool()',
     };
   }
 }
