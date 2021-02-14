@@ -57,8 +57,35 @@ export class JSONServer {
       if (!schema.routes) return;
 
       Object.keys(schema.routes).forEach((route) => {
-        const handler = schema.routes[route];
-        this.server.use(route, handler);
+        const method = schema.routes[route].method;
+        const handler = schema.routes[route].handler;
+
+        if (!method) {
+          this.server.use(route, handler);
+        } else {
+          if (!method) {
+            this.server.use(route, handler);
+          } else {
+            const verb = method.toUpperCase();
+            switch (verb) {
+              case "GET":
+                this.server.get(route, handler);
+                break;
+              case "POST":
+                this.server.post(route, handler);
+                break;
+              case "UPDATE":
+                this.server.update(route, handler);
+                break;
+              case "DELETE":
+                this.server.delete(route, handler);
+                break;
+              default:
+                this.server.use(route, handler);
+                break;
+            }
+          }
+        }
       });
     });
   }

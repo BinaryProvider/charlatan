@@ -9,6 +9,7 @@ export interface SchemaDefinition {
 
 export interface SchemaDefinitionHandler {
   path: string;
+  method?: string;
   handler?: unknown;
   response?: SchemaDefinitionResponse[];
 }

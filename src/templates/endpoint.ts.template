@@ -13,9 +13,13 @@ export class {{name}} extends ApiEndpoint {
   public routes = {
     {{#routes}}
     {{#if handler}}
-    ['{{path}}']: {{{handler}}},
+    ['{{path}}']: {
+      {{#if method}}method: '{{{method}}}',{{/if}}
+      handler: {{{handler}}},
+    },
     {{else}}
-    ['{{path}}']: (req, res, next) => {
+    ['{{path}}']: {
+      handler: (req, res, next) => {
       {{#if (gotDefinedResponse this)}}
       {{#each methods}}
       if (req.method === '{{verb}}') {
@@ -25,6 +29,7 @@ export class {{name}} extends ApiEndpoint {
       {{else}}
       next()
       {{/if}}
+      },
     },
     {{/if}}
     {{/routes}}
