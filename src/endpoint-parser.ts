@@ -105,6 +105,5 @@ export class EndpointParser {
     const find = options.endpoint['name'].find;
     const replace = options.endpoint['name'].replace;
     endpoint.name = endpoint.name.replace(find, replace);
-    console.log(endpoint);
   }
 }

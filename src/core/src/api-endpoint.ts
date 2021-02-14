@@ -4,7 +4,7 @@ export class ApiEndpoint extends Mocker {
   public name: string;
   public definition: any;
   public index = Number.MAX_VALUE;
-  public count = 10;
+  public count: number | Function = 10;
   public routes: any;
 
   private static instance: ApiEndpoint;

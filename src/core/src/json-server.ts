@@ -48,7 +48,8 @@ export class JSONServer {
 
   private applySchemas(): void {
     SCHEMAS.forEach((schema) => {
-      this.mocker.schema(schema.name, schema.definition, schema.count);
+      const count = typeof schema.count === 'number' ? schema.count : (schema.count as Function)();
+      this.mocker.schema(schema.name, schema.definition, count);
     });
   }
 

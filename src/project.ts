@@ -137,6 +137,7 @@ export class Project {
       this.TEMPLATE_DIR,
       'schemas.ts.template'
     );
+
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8' });
     const template = handlebars.compile(source);
     const fileName = 'schemas.ts';
@@ -251,6 +252,9 @@ export class Project {
     handlebars.registerHelper('isArray', (value) => Array.isArray(value));
     handlebars.registerHelper('isString', (value) => typeof value === 'string');
     handlebars.registerHelper('isNumber', (value) => typeof value === 'number');
+    handlebars.registerHelper('endpointCount', (method) => {
+      return method.toString();
+    });
     handlebars.registerHelper(
       'isFunction',
       (value) => value && {}.toString.call(value) === '[object Function]'
@@ -348,7 +352,7 @@ export class Project {
       'endpoint.ts.template'
     );
     const source = fsx.readFileSync(sourcePath, { encoding: 'utf8' });
-    const template = handlebars.compile(source);
+    const template = handlebars.compile(source, { assumeObjects: true });
     const fileName = this.formatFilename(
       `${endpoint.name.toHyphenCase()}.ts`,
       options
