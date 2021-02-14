@@ -36,6 +36,24 @@ export class JSONServer {
     this.server.use(bodyParser);
     this.server.use(middlewares);
 
+    this.server.use(async (req, res, next) => {
+      if (req.method === "POST") {
+        if (req.url === "/api/reset") {
+          this.mocker.reset();
+
+          await this.mocker.build().then((data) => {
+            fs.writeFileSync(Database.FILE, JSON.stringify(data, null, 1));
+          });
+
+          Database.load(router);
+          router.db.setState(Database.REPOSITORY);
+          res.status(200).json();
+          return;
+        }
+      }
+      next();
+    });
+
     this.configureAuth();
     this.applyCustomRoutes();
 
