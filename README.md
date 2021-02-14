@@ -29,6 +29,25 @@ Location: C:\tmp\example-api
 ------------------------------
 ```
 
+#### Generate models only
+```
+> charlatan --models
+Name of API (charlatan-api): example-api
+Out dir: C:\temp
+Swagger definition: https://petstore.swagger.io/v2/swagger.json
+
+Parsing Swagger definition...
+Creating new project...
+
+------------------------------
+
+Models generated successfully!   
+
+Location: C:\tmp\example-api     
+
+------------------------------
+```
+
 #### Generate an API using a configuration file
 
 Create a file in the root of your project called `.charlatanrc`:

@@ -66,7 +66,7 @@ const parseSwagger = (data: ProjectData) => {
       }
 
       CLI.success('------------------------------', true);
-      CLI.success('API generated successfully!', true);
+      CLI.success(`${data.models ? 'Models' : 'API'} generated successfully!`, true);
       CLI.text(`^+Location: ^:${data.outDir}`, true);
       CLI.success('------------------------------', true, true);
     }
