@@ -113,7 +113,7 @@ export class JSONServer {
     if (!Options.auth.enabled) return;
 
     const unauthorizedErrorMessage = { status: 401, message: 'Unauthorized' };
-    const rule = new RegExp(Options.auth.rule, 'gi');
+    const rule = new RegExp(Options.auth.rule, 'i');
 
     this.server.use(rule, (req, res, next) => {
       if (
