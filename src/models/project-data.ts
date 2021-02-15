@@ -33,6 +33,7 @@ export interface AuthOptions {
   enabled?: boolean;
   secret?: string;
   rule?: string;
+  method?: 'verify' | 'decode';
 }
 
 export interface FileOptions {

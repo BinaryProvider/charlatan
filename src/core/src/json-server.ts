@@ -113,7 +113,7 @@ export class JSONServer {
     if (!Options.auth.enabled) return;
 
     const unauthorizedErrorMessage = { status: 401, message: 'Unauthorized' };
-    const rule = new RegExp(Options.auth.rule);
+    const rule = new RegExp(Options.auth.rule, 'gi');
 
     this.server.use(rule, (req, res, next) => {
       if (
@@ -125,14 +125,16 @@ export class JSONServer {
       }
 
       const token = req.headers.authorization.split(' ')[1];
+      const decodedToken = jwt.decode(token);
+      const method = Options.auth.method ?? 'verify';
 
-      try {
-        jwt.verify(token, Options.auth.secret);
-        req.token = token;
-        next();
-      } catch (error) {
+      jwt.verify(token, Options.auth.secret, (error, decoded) => {
+        if (!error || (method === 'decode' && decodedToken)) {
+          req.token = token;
+          next();
+        }
         res.status(401).json(unauthorizedErrorMessage);
-      }
+      });
     });
   }
 }
