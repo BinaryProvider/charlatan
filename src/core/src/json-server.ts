@@ -132,6 +132,7 @@ export class JSONServer {
         if (!error || (method === 'decode' && decodedToken)) {
           req.token = token;
           next();
+          return;
         }
         res.status(401).json(unauthorizedErrorMessage);
       });
